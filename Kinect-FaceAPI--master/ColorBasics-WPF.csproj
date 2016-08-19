@@ -142,6 +142,22 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Slide1.JPG" />
+    <Resource Include="Images\Slide10.JPG" />
+    <Resource Include="Images\Slide11.JPG" />
+    <Resource Include="Images\Slide12.JPG" />
+    <Resource Include="Images\Slide13.JPG" />
+    <Resource Include="Images\Slide14.JPG" />
+    <Resource Include="Images\Slide2.JPG" />
+    <Resource Include="Images\Slide3.JPG" />
+    <Resource Include="Images\Slide4.JPG" />
+    <Resource Include="Images\Slide5.JPG" />
+    <Resource Include="Images\Slide6.JPG" />
+    <Resource Include="Images\Slide7.JPG" />
+    <Resource Include="Images\Slide8.JPG" />
+    <Resource Include="Images\Slide9.JPG" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

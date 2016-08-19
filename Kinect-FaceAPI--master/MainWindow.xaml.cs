@@ -27,6 +27,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
     using System.Net.Mail;
     using System.Drawing.Imaging;
     using System.Runtime.InteropServices;
+    using System.Threading.Tasks;
 
 
 
@@ -60,8 +61,18 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         int bg_facecount = 0;
         string shareVariable = "default";
         DispatcherTimer timer;
+        DispatcherTimer bgImage_timer;
         int imgno = 1;
         string final_name = "";
+        WriteableBitmap Background_image;
+        int view_mode = 0;
+        BitmapImage[] bg_pool = new BitmapImage[20];
+        private BodyFrameReader bodyFrameReader = null;
+        private Body[] bodies = null;
+        private bool IsLeftHandRaise = false;
+        private bool IsRightHandRaise = false;
+        private string PreviousState = "D";
+        private string CurrentState = "D";
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -102,6 +113,16 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             // initialize the components (controls) of the window
             this.InitializeComponent();
 
+            if (this.kinectSensor != null)
+            {
+                Console.Write("Kinect Open");
+                this.bodies = new Body[this.kinectSensor.BodyFrameSource.BodyCount];
+                // open the reader for the body frames
+                this.bodyFrameReader = this.kinectSensor.BodyFrameSource.OpenReader();
+                this.bodyFrameReader.FrameArrived += this.Reader_FrameArrived;
+                //kinect.Open();
+            }
+
             // Define the face attributes the Face API should return
             //    _faceattributes.Add(FaceAttributeType.Gender);
             //    _faceattributes.Add(FaceAttributeType.Age);
@@ -113,24 +134,160 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
             imgno = 1;
             timer.Tick += Timer_Tick;
-           
+
+            bgImage_timer = new DispatcherTimer();
+            bgImage_timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
+
+            Load_BgImage();
+
+
 
         }
-
-        private void Timer_Tick(object sender, EventArgs e)
+        private async void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
+            
+            bool dataReceived = false;
+            using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
+            {
+                if (bodyFrame != null)
+                {
+                    bodyFrame.GetAndRefreshBodyData(this.bodies);
+                    dataReceived = true;
+                }
 
+            }
+            #region gesture detect to switch bg_image
+            if (dataReceived)
+            {
+                int ZvalueforDistinct = 1000;
+                int bodyIndexForUse = 0;
+                // first person
+                for (int bodyIndex = 0; bodyIndex < this.bodies.Length; bodyIndex++)
+                {
+
+                    Body temp_body = this.bodies[bodyIndex];
+                    Joint userJoint_Head = temp_body.Joints[JointType.Head];
+                    int HeadZAxis = (int)(userJoint_Head.Position.Z * 100);
+                    if (ZvalueforDistinct > HeadZAxis && HeadZAxis != 0)
+                    {
+                        ZvalueforDistinct = HeadZAxis;
+                        bodyIndexForUse = bodyIndex;
+                    }
+
+                }
+                Body body = this.bodies[bodyIndexForUse];
+
+                if (body.IsTracked)
+                {
+                    Console.WriteLine("body.IsTracked");
+                    Joint userJoint_HandLeft = body.Joints[JointType.HandLeft];
+                    Joint userJoint_ElbowLeft = body.Joints[JointType.ElbowLeft];
+                    Joint userJoint_HandRight = body.Joints[JointType.HandRight];
+                    Joint userJoint_ElbowRight = body.Joints[JointType.ElbowRight];
+                    Joint userJoint_ShoulderCenter = body.Joints[JointType.SpineShoulder];
+                    Joint userJoint_Spine = body.Joints[JointType.SpineMid];
+                    Joint userJoint_Head = body.Joints[JointType.Head];
+
+                    //右手舉起
+                    if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
+                    {
+
+                        //IsRightHandRaise = true;
+                        
+                        Console.Write("舉右手");
+                        //右手X位置-右手手肘的位置
+                        float distance = userJoint_HandRight.Position.X - userJoint_ElbowRight.Position.X;
+                        System.Console.WriteLine(distance);
+                        int flag = 0;
+                        if (distance > 0.05f )
+                        {
+                            CurrentState = "R";
+                            // if (PreviousState.Equals("L"))
+                            if (PreviousState.Equals("L"))
+                            {
+                                imgno++;
+                                if (imgno == 15)
+                                {
+                                    imgno = 1;
+                                }
+                                BackGround_Screen.Source = bg_pool[imgno];
+                                
+                            }
+                            PreviousState = "R";
+                            
+                            
+
+                        } else if (distance < -0.05f )
+                        {
+                            CurrentState = "L";
+                            if (PreviousState.Equals("R"))
+                            {
+                                imgno--;
+                                if (imgno == 0)
+                                {
+                                    imgno = 14;
+                                }
+                                BackGround_Screen.Source = bg_pool[imgno];
+
+                            }
+                            PreviousState = "L";
+                             
+                        }
+                        if (PreviousState.Equals(CurrentState))
+                        {
+                            //PreviousState = "D";
+                            CurrentState = "D";
+                        }
+
+                    }//左手舉起
+                    else if (userJoint_HandLeft.Position.Y > userJoint_ElbowLeft.Position.Y)
+                    {
+                    }
+                }
+            }
+            #endregion
+        }
+        private void Load_BgImage()
+        {
+            int i = 1;
+
+            for (i = 1; i < 15; i++)
+            {
+                StringBuilder st = new StringBuilder();
+                st.Append("Images/Slide");
+                st.Append(i.ToString());
+                st.Append(".JPG");
+                bg_pool[i] = new BitmapImage(new Uri(st.ToString(), UriKind.RelativeOrAbsolute));
+            }
+        }
+        private async void Timer_Tick(object sender, EventArgs e)
+        {
+            StringBuilder st = new StringBuilder();
+            st.Append("/Images/Slide");
+            st.Append(imgno.ToString());
+            st.Append(".JPG");
+            BackGround_Screen.Source = bg_pool[imgno];
+            await Task.Delay(2000);
+            //imgno++;
             if (shareVariable.Equals("default"))
             {
                 //do nothing
             }
             else if (shareVariable.Equals("qrcode"))
             {
+
+                //System.Console.WriteLine(bg_pool[1]);
+
+
                 Bitmap bitmap = BitmapFromWriteableBitmap(this.colorBitmap);
                 BitmapEncoder encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
                 string myPhotos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                string path = System.IO.Path.Combine(myPhotos, "qr_temp.jpg");
+                StringBuilder qr_st = new StringBuilder();
+                qr_st.Append("qr_temp");
+                qr_st.Append(final_name);
+                qr_st.Append(".jpg");
+                string path = System.IO.Path.Combine(myPhotos, qr_st.ToString());
 
                 // FileStream is IDisposable
                 try
@@ -192,6 +349,38 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
             }
         }
+        public static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException("bitmap");
+
+            var rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+
+            var bitmapData = bitmap.LockBits(
+                rect,
+                ImageLockMode.ReadWrite,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            try
+            {
+                var size = (rect.Width * rect.Height) * 4;
+
+                return BitmapSource.Create(
+                    bitmap.Width,
+                    bitmap.Height,
+                    bitmap.HorizontalResolution,
+                    bitmap.VerticalResolution,
+                    PixelFormats.Bgra32,
+                    null,
+                    bitmapData.Scan0,
+                    size,
+                    bitmapData.Stride);
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
+        }
         private System.Drawing.Bitmap BitmapFromWriteableBitmap(WriteableBitmap writeBmp)
         {
             System.Drawing.Bitmap bmp;
@@ -217,7 +406,20 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         {
             get
             {
-                return this.colorBitmap;
+                if (view_mode == 0)
+                {
+                    return this.colorBitmap;
+                }
+                else if (view_mode == 1)
+                {
+                    Bitmap a=new Bitmap (Image.FromFile("Images/Slide1.JPG"));
+                    return CreateBitmapSourceFromGdiBitmap(a);
+                }
+                else
+                {
+                    System.Console.Write("ASDADADADSADAS");
+                    return this.colorBitmap;
+                }
             }
         }
 
@@ -725,11 +927,16 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 sw.Reset();
                  
             }
-
+            //
+            //Background_image = Image.FromFile("Status.png");
             Window1 frm = new Window1(this);
             frm.SetName(final_name);
             frm.Show();
             timer.Start();
+            view_mode = 1;
+            BackGround_Screen.Visibility = Visibility.Visible;
+            DefaultScreen.Visibility = Visibility.Collapsed;
+
         }
 
         public void SetName(string name)
