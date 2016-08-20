@@ -28,6 +28,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
     using System.Drawing.Imaging;
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
+    using System.Threading;
 
 
 
@@ -71,8 +72,12 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         private Body[] bodies = null;
         private bool IsLeftHandRaise = false;
         private bool IsRightHandRaise = false;
-        private string PreviousState = "D";
+        private string PreviousState = "D"; //default
         private string CurrentState = "D";
+        string[] state_buffer;
+
+        int open_r_state = 0;
+        int open_l_state = 0;
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -199,11 +204,25 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         float distance = userJoint_HandRight.Position.X - userJoint_ElbowRight.Position.X;
                         System.Console.WriteLine(distance);
                         int flag = 0;
+
+                        //FSM dectect gesture
+                        // INPUT : R
                         if (distance > 0.05f )
                         {
-                            CurrentState = "R";
+                            if (CurrentState.Equals("D"))
+                            {
+                                CurrentState = "1";
+                            }
+                            else if (CurrentState.Equals("0"))
+                            {
+                                CurrentState = "0";
+                            }
+                            else if (CurrentState.Equals("1"))
+                            {
+                                CurrentState = "0";
+                            }
                             // if (PreviousState.Equals("L"))
-                            if (PreviousState.Equals("L"))
+                            /*if (PreviousState.Equals("L"))
                             {
                                 imgno++;
                                 if (imgno == 15)
@@ -213,29 +232,58 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 BackGround_Screen.Source = bg_pool[imgno];
                                 
                             }
-                            PreviousState = "R";
+                            PreviousState = "R";*/
                             
                             
 
-                        } else if (distance < -0.05f )
+                        }// INPUT : L
+                        else if (distance < -0.05f )
                         {
-                            CurrentState = "L";
+                            if (CurrentState.Equals("D"))
+                            {
+                                CurrentState = "0";
+                            }
+                            else if (CurrentState.Equals("0"))
+                            {
+                                CurrentState = "1";
+                            }
+                            else if (CurrentState.Equals("1"))
+                            {
+                                CurrentState = "1";
+                            }
+                            /*
                             if (PreviousState.Equals("R"))
                             {
-                                imgno--;
-                                if (imgno == 0)
-                                {
-                                    imgno = 14;
-                                }
-                                BackGround_Screen.Source = bg_pool[imgno];
+                                
 
                             }
-                            PreviousState = "L";
-                             
-                        }
-                        if (PreviousState.Equals(CurrentState))
+                            PreviousState = "L";*/
+
+                        } 
+                        // switch image
+                        if (CurrentState.Equals("0"))
                         {
-                            //PreviousState = "D";
+                            imgno--;
+                            if (imgno == 0)
+                            {
+                                imgno = 14;
+                            }
+                            Thread.Sleep(200);
+                            BackGround_Screen.Source = bg_pool[imgno];
+                            
+                            CurrentState = "D";
+                            
+                        }
+                        else if (CurrentState.Equals("1"))
+                        {
+                            imgno++;
+                            if (imgno == 15)
+                            {
+                                imgno = 1;
+                            }
+                            Thread.Sleep(200);
+                            BackGround_Screen.Source = bg_pool[imgno];
+                            
                             CurrentState = "D";
                         }
 
