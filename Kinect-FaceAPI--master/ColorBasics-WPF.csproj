@@ -190,9 +190,26 @@
     <Resource Include="Images\Slide9.JPG" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\man_young.png" />
-    <Resource Include="Images\women_mature.png" />
-    <Resource Include="Images\women_young.png" />
+    <Resource Include="Images\MICROSOFT.png" />
+    <Resource Include="Images\rsz_microsoft.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\shot.jpg" />
+    <Resource Include="Images\shoth.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\wall.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\shot.png" />
+    <Resource Include="Images\shoth.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\wave.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\lhands.png" />
+    <Resource Include="Images\rhands.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
