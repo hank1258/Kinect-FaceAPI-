@@ -118,7 +118,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
             // initialize the components (controls) of the window
             this.InitializeComponent();
-
+         
             if (this.kinectSensor != null)
             {
                 Console.Write("Kinect Open");
@@ -196,7 +196,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                     if (Mode_State.Equals("B"))
                     {
-
+                        shot_button.Visibility = Visibility.Collapsed;
+                        wave_lhandes.Visibility = Visibility.Visible;
                         //右手舉起
                         if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
                         {

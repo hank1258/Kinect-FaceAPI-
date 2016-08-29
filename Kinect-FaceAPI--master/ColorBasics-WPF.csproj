@@ -158,6 +158,28 @@
     <Resource Include="Images\Slide8.JPG" />
     <Resource Include="Images\Slide9.JPG" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\MICROSOFT.png" />
+    <Resource Include="Images\rsz_microsoft.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\shot.jpg" />
+    <Resource Include="Images\shoth.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\wall.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\shot.png" />
+    <Resource Include="Images\shoth.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\wave.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\lhands.png" />
+    <Resource Include="Images\rhands.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
