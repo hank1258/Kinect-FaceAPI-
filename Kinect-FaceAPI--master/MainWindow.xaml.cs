@@ -4,6 +4,7 @@
 // </copyright>
 //------------------------------------------------------------------------------
 
+using Utils;
 
 namespace Microsoft.Samples.Kinect.ColorBasics
 {
@@ -29,10 +30,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using System.Threading;
+    using Emgu.CV;
 
-
-
-    // using SampleUserControlLibrary;
 
     /// <summary>
     /// Interaction logic for MainWindow
@@ -76,8 +75,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         private string CurrentState = "D";
         string[] state_buffer;
 
-        int open_r_state = 0;
-        int open_l_state = 0;
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -135,6 +132,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             //    _faceattributes.Add(FaceAttributeType.Glasses);
             //    _faceattributes.Add(FaceAttributeType.Smile);
             //   _faceattributes.Add(FaceAttributeType.FacialHair);
+
             timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
             imgno = 1;
@@ -297,9 +295,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         }
         private void Load_BgImage()
         {
-            int i = 1;
-
-            for (i = 1; i < 15; i++)
+            for (int i = 1; i < 15; i++)
             {
                 StringBuilder st = new StringBuilder();
                 st.Append("Images/Slide");
@@ -361,7 +357,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                     System.Console.WriteLine("result:" + result);
                     if (result != null)
-                    {   //如果有成功解讀，則顯示文字
+                    {   
                         // label1.Text = result.Text;
                         System.Console.WriteLine(result);
                         try
@@ -528,7 +524,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         {
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();//引用stopwatch物件
-
             sw.Reset();//碼表歸零
             sw.Start();//碼表開始計時
 
@@ -613,7 +608,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             int bg_max_right = Convert.ToInt32(face.FaceLandmarks.EyebrowRightOuter.X);
                             int bg_max_buttom = Convert.ToInt32(face.FaceLandmarks.UnderLipBottom.Y);
                             int[] bg_top = new int[4];
-                            int bg_max_top = 999999999;
+                            int bg_max_top = int.MaxValue;
                             bg_top[0] = Convert.ToInt32(face.FaceLandmarks.EyebrowLeftInner.Y);
                             bg_top[1] = Convert.ToInt32(face.FaceLandmarks.EyebrowLeftOuter.Y);
                             bg_top[2] = Convert.ToInt32(face.FaceLandmarks.EyebrowRightInner.Y);
@@ -702,7 +697,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 sw.Start();//碼表開始計時
                 var faceserviceclient = new FaceServiceClient("2c2a7f6eca9e4197926721a886786d6b");
 
-                ProjectOxford.Face.Contract.Face[] faces = await faceserviceclient.DetectAsync(faceimagestream, false, true, new FaceAttributeType[] { FaceAttributeType.Gender, FaceAttributeType.Age, FaceAttributeType.Smile, FaceAttributeType.HeadPose });
+                ProjectOxford.Face.Contract.Face[] faces = await faceserviceclient.DetectAsync(faceimagestream, false, true, 
+                    new FaceAttributeType[] { FaceAttributeType.Gender, FaceAttributeType.Age, FaceAttributeType.Smile, FaceAttributeType.HeadPose });
 
                 sw.Stop();//碼錶停止
                 string result3 = sw.Elapsed.TotalMilliseconds.ToString();
@@ -714,13 +710,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     return;
                 }
 
-                double resizefactor = 1;
-                int[] faceimg_x = new int[10];
-                int[] faceimg_y = new int[10];
-                int[] faceimg_width = new int[10];
-                int[] faceimg_height = new int[10];
-
-
+                int[] faceimg_x = new int[Utils.Constants.MAX_FACE_NUM];
+                int[] faceimg_y = new int[Utils.Constants.MAX_FACE_NUM];
+                int[] faceimg_width = new int[Utils.Constants.MAX_FACE_NUM];
+                int[] faceimg_height = new int[Utils.Constants.MAX_FACE_NUM];
 
                 facecount = 0;
                 sw.Start();
@@ -734,7 +727,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     int max_right = Convert.ToInt32(face.FaceLandmarks.EyebrowRightOuter.X);
                     int max_buttom = Convert.ToInt32(face.FaceLandmarks.UnderLipBottom.Y);
                     int[] top = new int[4];
-                    int max_top = 999999999;
+                    int max_top = int.MaxValue;
                     top[0] = Convert.ToInt32(face.FaceLandmarks.EyebrowLeftInner.Y);
                     top[1] = Convert.ToInt32(face.FaceLandmarks.EyebrowLeftOuter.Y);
                     top[2] = Convert.ToInt32(face.FaceLandmarks.EyebrowRightInner.Y);
@@ -763,46 +756,11 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                     string[] split_filestrs = randomName.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
 
-                    if (face.FaceAttributes.HeadPose.Roll >= 10)
+                    if (face.FaceAttributes.HeadPose.Roll >= 10 || face.FaceAttributes.HeadPose.Roll <= -10)
                     {
-
-
                         System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Convert.ToInt32(x), Convert.ToInt32(y), width, height);
 
                         Bitmap CroppedImage = new Bitmap(CropRotatedRect(oribmp, rect, Convert.ToSingle(face.FaceAttributes.HeadPose.Roll * -1), true));
-
-                        faceimg_x[facecount] = Convert.ToInt32(x);
-                        faceimg_y[facecount] = Convert.ToInt32(y);
-                        faceimg_width[facecount] = width;
-                        faceimg_height[facecount] = height;
-
-                        StringBuilder st = new StringBuilder();
-                        st.Append("faceimg");
-                        // st.Append(facecount.ToString());
-                        st.Append(split_filestrs[0]);
-                        Facename_Pool.Add(facecount, split_filestrs[0]);
-                        st.Append(".png");
-                        string outputFileName = st.ToString();
-                        using (MemoryStream memory = new MemoryStream())
-                        {
-                            using (FileStream fs = new FileStream(outputFileName, FileMode.Create, FileAccess.ReadWrite))
-                            {
-                                CroppedImage.Save(memory, ImageFormat.Png);
-                                byte[] bytes = memory.ToArray();
-                                fs.Write(bytes, 0, bytes.Length);
-                                fs.Flush();
-                                fs.Close();
-                                memory.Flush();
-                                memory.Close();
-                            }
-                        }
-                        CroppedImage.Dispose();
-                    }
-                    else if (face.FaceAttributes.HeadPose.Roll <= -10)
-                    {
-
-                        System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Convert.ToInt32(x), Convert.ToInt32(y), width, height);
-                        Bitmap CroppedImage = CropRotatedRect(oribmp, rect, Convert.ToSingle(face.FaceAttributes.HeadPose.Roll * -1), true);
 
                         faceimg_x[facecount] = Convert.ToInt32(x);
                         faceimg_y[facecount] = Convert.ToInt32(y);
@@ -903,15 +861,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 System.Console.WriteLine("round corner :" + result5);
                 sw.Reset();
 
-                for (int j = 1; j <= facecount; j++)
-                {
-                    //  pool.Add(j);
-                }
-
-                // ShuffleList(ref pool);
-
-                int i;
-
                 sw.Start();
                 Image temp_face;
                 Image frame = Image.FromFile("bg_back.jpg"); ;
@@ -935,7 +884,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                                            frame.Height),
                                              GraphicsUnit.Pixel);
 
-                            for (i = 1; i <= facecount; i++)
+                            for (int i = 1; i <= facecount; i++)
                             {
 
                                 StringBuilder st = new StringBuilder();
