@@ -366,8 +366,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             {
 
                 //System.Console.WriteLine(bg_pool[1]);
-
-
+                /*
                 Bitmap bitmap = BitmapFromWriteableBitmap(this.colorBitmap);
                 BitmapEncoder encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
@@ -377,20 +376,23 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 qr_st.Append(final_name);
                 qr_st.Append(".jpg");
                 string path = System.IO.Path.Combine(myPhotos, qr_st.ToString());
-
+                */
                 // FileStream is IDisposable
                 try
                 {
+                    /*
                     using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
                     {
                         encoder.Save(fs);
                         fs.Close();
                     }
-
-
+                    
+                    */
                     string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                    string fi_path = System.IO.Path.Combine(Fi_Photos, "Fianl" + final_name + ".jpg");
-                    Bitmap qr_bitmap = new Bitmap(Image.FromFile(path));
+                    
+                    string fi_path = System.IO.Path.Combine(Fi_Photos, "Final" + final_name + ".jpg");
+                    
+                    Bitmap qr_bitmap = BitmapFromWriteableBitmap(this.colorBitmap);//new Bitmap(Image.FromFile(path));
 
                     ZXing.IBarcodeReader reader = new ZXing.BarcodeReader();
                     ZXing.Result result = reader.Decode(qr_bitmap);
