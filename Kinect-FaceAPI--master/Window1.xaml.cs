@@ -38,7 +38,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         private void Image_Loaded(object sender, RoutedEventArgs e)
         {
             string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-
             string fi_path = System.IO.Path.Combine(Fi_Photos, "Final"+final_name+ ".jpg");
             // ... Create a new BitmapImage.
             BitmapImage b = new BitmapImage();

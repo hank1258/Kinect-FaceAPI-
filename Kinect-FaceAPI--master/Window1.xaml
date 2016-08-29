@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Microsoft.Samples.Kinect.ColorBasics"
         mc:Ignorable="d"
-        Title="Window1" Height="500" Width="700">
+        Title="Window1" Height="500" Width="700"
+         
+         >
     <Grid>
         <Image x:Name="image" HorizontalAlignment="Left" Height="310" Margin="10,46,0,0" VerticalAlignment="Top" Width="672"  Loaded="Image_Loaded"/>
         <Button x:Name="button" Content="Yes" HorizontalAlignment="Left" Margin="26,382,0,0" VerticalAlignment="Top" Width="146" Height="62"  Click="button_Click"/>
