@@ -325,11 +325,11 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                         final_name = Facename_Pool[1];
                                         using (Bitmap tempBitmap = new Bitmap(bitmap))
                                         {
-
                                             tempBitmap.Save(fi_path, System.Drawing.Imaging.ImageFormat.Jpeg);
-
                                         }
                                         Mode_State = State.Result;
+                                        BackGround_Screen.Source = Bitmap2BitmapImage(bitmap);
+
                                     }
                                     catch (Exception ex)
                                     {
@@ -345,15 +345,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                     case State.Result:
                         
-                        Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                        fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
-                        using (Bitmap tempBitmap = new Bitmap(fi_path))
-                        {
-                            tempBitmap.Save(fi_path, System.Drawing.Imaging.ImageFormat.Jpeg);
-                            BackGround_Screen.Source = Bitmap2BitmapImage(tempBitmap);
-                        }
-
-                        
+ 
                         break;
 
                 }
