@@ -9,6 +9,8 @@ namespace Utils
 {
     static public class Constants
     {
+        public const bool WHITE_BOARDING = false;
+        public const int MAX_BG_NUM = 13;
         public const int MAX_FACE_NUM = 4;
         enum Types { Male_Young, Male_Old, Female_Young, Female_Old};
         public const  int FIGURE_WIDTH = 1858;
@@ -24,9 +26,9 @@ namespace Utils
 
         public static Point[] POSITION_OFFSET = new Point[]
         {
-            new Point(-100,100),
             new Point(233,100),
             new Point(520,100),
+            new Point(-100,100),
             new Point(820,100)
         };
 

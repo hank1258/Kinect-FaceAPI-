@@ -55,13 +55,37 @@
             <Image x:Name="DefaultScreen" Source="{Binding ImageSource}" Stretch="UniformToFill" />
     </Viewbox>
     <Viewbox Grid.Row="1" HorizontalAlignment="Center">
-            <Image x:Name="BackGround_Screen" Visibility="Collapsed"  Stretch="UniformToFill" />
+            <Image x:Name="BackGround_Screen" 
+                   Source="Images/Slide1.JPG"
+                   Visibility="Collapsed"  
+                   Stretch="UniformToFill" />
     </Viewbox>
-
+        
         <Button x:Name="shot_button" Grid.Row ="2" Style="{StaticResource ScreenshotButton}" Content=""  Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="15 10 0 5" Click="ScreenshotButton_Click" />
         <Image  x:Name="wave_lhandes"   Visibility="Collapsed" Source="Images/lhands.png" Grid.Row ="2"    Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 200 0" />
         <TextBlock  x:Name="hand_text"  Visibility="Collapsed" HorizontalAlignment="Center" Grid.Row ="2"  Margin="0 0 -1 0" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="24">  <Run Text="        揮動你的雙手" />  <LineBreak/>
         <Run Text="    選擇你想要的場景" /></TextBlock>
         <Image  x:Name="wave_rhandes"   Visibility="Collapsed" Source="Images/rhands.png" Grid.Row ="2"    Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="250 0 0 0" />
+        <Button x:Name="btn_confirm"   
+                Visibility="Collapsed" 
+                Grid.Row ="2"    
+                Height="75"   
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Margin="0 0 100 0" 
+                Click="ResultConfirmButton_Click">
+            <Image Source="Images/confirm.png" ></Image>
+        </Button>
+
+        <Button x:Name="btn_cancel"   
+                Visibility="Collapsed" 
+                Grid.Row ="2"    
+                Height="75"   
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center" 
+                Margin="150 0 0 0"
+                 Click="ResultCancelButton_Click">
+            <Image Source="Images/cancel.png" ></Image>
+        </Button>
     </Grid>
 </Window>

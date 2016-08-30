@@ -204,9 +204,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         //右手舉起
                         if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
                         {
-                            Console.Write("舉右手");
                             //右手X位置-右手手肘的位置
                             float distance = userJoint_HandRight.Position.X - userJoint_ElbowRight.Position.X;
+                            Console.Write("舉右手");
                             System.Console.WriteLine(distance);
                             int flag = 0;
 
@@ -252,7 +252,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 imgno--;
                                 if (imgno == 0)
                                 {
-                                    imgno = 14;
+                                    imgno = Constants.MAX_BG_NUM;
                                 }
                                 Thread.Sleep(200);
                                 BackGround_Screen.Source = bg_pool[imgno];
@@ -263,7 +263,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             else if (CurrentState.Equals("1"))
                             {
                                 imgno++;
-                                if (imgno == 15)
+                                if (imgno > Constants.MAX_BG_NUM)
                                 {
                                     imgno = 1;
                                 }
@@ -330,6 +330,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                         Mode_State = State.Result;
                                         BackGround_Screen.Source = Bitmap2BitmapImage(bitmap);
 
+
                                     }
                                     catch (Exception ex)
                                     {
@@ -338,14 +339,15 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 }
                             }
                         }
-                    
-
 
                         break;
 
                     case State.Result:
-                        
- 
+                        wave_lhandes.Visibility = Visibility.Collapsed;
+                        wave_rhandes.Visibility = Visibility.Collapsed;
+                        hand_text.Visibility = Visibility.Collapsed;
+                        btn_confirm.Visibility = Visibility.Visible;
+                        btn_cancel.Visibility = Visibility.Visible;
                         break;
 
                 }
@@ -355,7 +357,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         }
         private void Load_BgImage()
         {
-            for (int i = 1; i < 15; i++)
+            for (int i=1; i<=Constants.MAX_BG_NUM; i++)
             {
                 StringBuilder st = new StringBuilder();
                 st.Append("Images/Slide");
@@ -571,6 +573,26 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             }
         }
 
+
+        private void ResultCancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            Mode_State = State.Default;
+            BackGround_Screen.Source = bg_pool[1];
+
+            BackGround_Screen.Visibility = Visibility.Collapsed;
+            btn_cancel.Visibility = Visibility.Collapsed;
+            btn_confirm.Visibility = Visibility.Collapsed;
+            DefaultScreen.Visibility = Visibility.Visible;
+            shot_button.Visibility = Visibility.Visible;
+
+            view_mode = 0;
+        }
+
+        private void ResultConfirmButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         /// <summary>
         /// Handles the user clicking on the screenshot button
         /// </summary>
@@ -613,7 +635,11 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
   
             Bitmap oribmp = new Bitmap(path);
-            oribmp.Save("back.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+            using(Bitmap tmpBmp = new Bitmap(oribmp))
+            {
+                tmpBmp.Save("back.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+            }
+            
 
 
             this.StatusText = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, path);
@@ -734,9 +760,13 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             faceimg_y[facecount] = Convert.ToInt32(y);
                             faceimg_width[facecount] = width;
                             faceimg_height[facecount] = height;
-                            using (Graphics g = Graphics.FromImage(CroppedImage))
+
+                            if (Constants.WHITE_BOARDING)
                             {
-                                g.DrawRectangle(new System.Drawing.Pen(System.Drawing.Brushes.White, 10), new Rectangle(0, 0, CroppedImage.Width, CroppedImage.Height));
+                                using (Graphics g = Graphics.FromImage(CroppedImage))
+                                {
+                                    g.DrawRectangle(new System.Drawing.Pen(System.Drawing.Brushes.White, 10), new Rectangle(0, 0, CroppedImage.Width, CroppedImage.Height));
+                                }
                             }
 
                             StringBuilder st = new StringBuilder();
@@ -837,15 +867,15 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 int bx=0, by=0;
                                 if (body_img.ToString().Equals("man_mature.png"))
                                 {
-                                    bx = 717;
-                                    by = 521;
+                                    bx = 760;
+                                    by = 656;
                                 }else if (body_img.ToString().Equals("man_young.png"))
                                 {
-                                    bx = 769;
-                                    by = 413;
+                                    bx = 823;
+                                    by = 535;
                                 }
                                     //canvas.DrawImage(temp_face, bg_faceimg_x[pool.IndexOf(i) + 1], bg_faceimg_y[pool.IndexOf(i) + 1], bg_faceimg_width[pool.IndexOf(i) + 1], bg_faceimg_height[pool.IndexOf(i) + 1]);
-                                canvas.DrawImage(body_face,bx, by, 430, 500);
+                                canvas.DrawImage(body_face,bx, by, 340, 340);
                                 canvas.Save();
                             }
                             try
@@ -883,7 +913,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             view_mode = 1;
             BackGround_Screen.Visibility = Visibility.Visible;
             DefaultScreen.Visibility = Visibility.Collapsed;
-            
+
         }
 
         public void SetName(string name)
