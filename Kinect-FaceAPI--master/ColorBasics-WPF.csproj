@@ -212,8 +212,8 @@
     <Resource Include="Images\rhands.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\cancel.png" />
-    <Resource Include="Images\confirm.png" />
+    <Resource Include="Images\check.png" />
+    <Resource Include="Images\retry.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

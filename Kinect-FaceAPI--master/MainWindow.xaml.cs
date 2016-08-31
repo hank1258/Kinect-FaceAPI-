@@ -32,8 +32,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
     using System.Threading;
     using Emgu.CV;
     using System.Windows.Interop;
+    using System.Windows.Forms;
 
-    enum State { Default, Background, Result};
+    enum State { Default, Background, Result, QRcode };
 
     /// <summary>
     /// Interaction logic for MainWindow
@@ -60,7 +61,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         /// </summary>
         private string statusText = null;
         int facecount = 0;
-        int bg_facecount = 0;
+        int qr = 0;
         string shareVariable = "default";
         DispatcherTimer timer;
         DispatcherTimer bgImage_timer;
@@ -117,7 +118,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
             // initialize the components (controls) of the window
             this.InitializeComponent();
-         
+
             if (this.kinectSensor != null)
             {
                 Console.Write("Kinect Open");
@@ -139,7 +140,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             timer = new DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
             imgno = 1;
-            timer.Tick += Timer_Tick;
+            // timer.Tick += Timer_Tick;
 
             bgImage_timer = new DispatcherTimer();
             bgImage_timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
@@ -151,7 +152,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         }
         private async void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
-            
+
             bool dataReceived = false;
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
             {
@@ -160,6 +161,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     bodyFrame.GetAndRefreshBodyData(this.bodies);
                     dataReceived = true;
                 }
+
+            }
+            if (qr == 1)
+            {
 
             }
             #region gesture detect to switch bg_image
@@ -197,10 +202,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         Joint userJoint_ShoulderCenter = body.Joints[JointType.SpineShoulder];
                         Joint userJoint_Spine = body.Joints[JointType.SpineMid];
                         Joint userJoint_Head = body.Joints[JointType.Head];
-                        shot_button.Visibility = Visibility.Collapsed;
-                        wave_lhandes.Visibility = Visibility.Visible;
-                        wave_rhandes.Visibility = Visibility.Visible;
-                        hand_text.Visibility = Visibility.Visible;
+
                         //右手舉起
                         if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
                         {
@@ -283,7 +285,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         {
                             Image temp_body;
                             Image frame = BitmapImage2Bitmap(bg_pool[imgno]);
-                            
+
                             using (frame)
                             {
                                 using (var bitmap = new Bitmap(frame.Width, frame.Height))
@@ -320,16 +322,26 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                     }
                                     try
                                     {
-                                        Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                                        fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
+                                        //Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+                                        // fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
+                                        StringBuilder st = new StringBuilder();
+                                        st.Append("F:\\");
+                                        st.Append("MTC_");
+                                        st.Append(Facename_Pool[1]);
+                                        st.Append(".jpg");
                                         final_name = Facename_Pool[1];
                                         using (Bitmap tempBitmap = new Bitmap(bitmap))
                                         {
-                                            tempBitmap.Save(fi_path, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                            tempBitmap.Save(st.ToString(), System.Drawing.Imaging.ImageFormat.Jpeg);
                                         }
                                         Mode_State = State.Result;
                                         BackGround_Screen.Source = Bitmap2BitmapImage(bitmap);
-
+                                        hand_text.Visibility = Visibility.Collapsed;
+                                        wave_rhandes.Visibility = Visibility.Collapsed;
+                                        wave_lhandes.Visibility = Visibility.Collapsed;
+                                        check_button.Visibility = Visibility.Visible;
 
                                     }
                                     catch (Exception ex)
@@ -340,14 +352,38 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             }
                         }
 
+
                         break;
 
                     case State.Result:
+                        /*
                         wave_lhandes.Visibility = Visibility.Collapsed;
                         wave_rhandes.Visibility = Visibility.Collapsed;
                         hand_text.Visibility = Visibility.Collapsed;
                         btn_confirm.Visibility = Visibility.Visible;
                         btn_cancel.Visibility = Visibility.Visible;
+                        */
+                        if (qr == 1)
+                        {
+                            /*
+                            BackGround_Screen.Source = bg_pool[imgno];
+                            BackGround_Screen.Visibility = Visibility.Collapsed;
+                            check_button.Visibility = Visibility.Collapsed;
+                            retry_button.Visibility = Visibility.Collapsed;
+                            DefaultScreen.Visibility = Visibility.Visible;
+
+                            // shot_button.Visibility = Visibility.Visible;
+                            qr_text.Visibility = Visibility.Visible;
+                            email_text.Visibility = Visibility.Visible;*/
+                        }
+                        else
+                        {
+                            qr = 0;
+                        }
+
+                        break;
+                    case State.QRcode:
+
                         break;
 
                 }
@@ -366,10 +402,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 bg_pool[i] = new BitmapImage(new Uri(st.ToString(), UriKind.RelativeOrAbsolute));
             }
         }
-       
+
         private async void Timer_Tick(object sender, EventArgs e)
         {
-             
+
             //imgno++;
             if (shareVariable.Equals("default"))
             {
@@ -402,9 +438,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     
                     */
                     string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                    
+
                     string fi_path = System.IO.Path.Combine(Fi_Photos, "Final" + final_name + ".jpg");
-                    
+
                     Bitmap qr_bitmap = BitmapFromWriteableBitmap(this.colorBitmap);//new Bitmap(Image.FromFile(path));
 
                     ZXing.IBarcodeReader reader = new ZXing.BarcodeReader();
@@ -415,7 +451,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                     System.Console.WriteLine("result:" + result);
                     if (result != null)
-                    {   
+                    {
                         // label1.Text = result.Text;
                         System.Console.WriteLine(result);
                         try
@@ -516,7 +552,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 }
                 else if (view_mode == 1)
                 {
-                    Bitmap a=new Bitmap (Image.FromFile("Images/Slide1.JPG"));
+                    Bitmap a = new Bitmap(Image.FromFile("Images/Slide1.JPG"));
                     return CreateBitmapSourceFromGdiBitmap(a);
                 }
                 else
@@ -574,25 +610,48 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         }
 
 
-        private void ResultCancelButton_Click(object sender, RoutedEventArgs e)
+        private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            // ... Get control that raised this event.
+            // var textBox = sender as TextBox;
+            // ... Change Window Title.
+            Console.WriteLine(email_text.Text);
+            // this.Title = textBox.Text +
+            //"[Length = " + textBox.Text.Length.ToString() + "]";
+        }
+        private void CheckButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            Mode_State = State.Default;
+
+            BackGround_Screen.Source = bg_pool[1];
+            BackGround_Screen.Visibility = Visibility.Collapsed;
+            check_button.Visibility = Visibility.Collapsed;
+            retry_button.Visibility = Visibility.Collapsed;
+            DefaultScreen.Visibility = Visibility.Visible;
+            qr_text.Visibility = Visibility.Visible;
+            email_text.Visibility = Visibility.Visible;
+
+            view_mode = 0;
+            qr = 1;
+
+
+
+        }
+        private void RetryButton_Click(object sender, RoutedEventArgs e)
         {
             Mode_State = State.Default;
-            BackGround_Screen.Source = bg_pool[1];
 
+            BackGround_Screen.Source = bg_pool[1];
             BackGround_Screen.Visibility = Visibility.Collapsed;
-            btn_cancel.Visibility = Visibility.Collapsed;
-            btn_confirm.Visibility = Visibility.Collapsed;
+            check_button.Visibility = Visibility.Collapsed;
+            retry_button.Visibility = Visibility.Collapsed;
             DefaultScreen.Visibility = Visibility.Visible;
             shot_button.Visibility = Visibility.Visible;
 
             view_mode = 0;
+            qr = 0;
         }
-
-        private void ResultConfirmButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         /// <summary>
         /// Handles the user clicking on the screenshot button
         /// </summary>
@@ -631,9 +690,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 encoder.Save(fs);
                 fs.Close();
             }
-            
 
-  
+
+
             Bitmap oribmp = new Bitmap(path);
             using(Bitmap tmpBmp = new Bitmap(oribmp))
             {
@@ -642,9 +701,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             
 
 
+
             this.StatusText = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, path);
             System.Console.WriteLine(path);
-            using (Stream faceimagestream = File.OpenRead("back.jpg"))
+            using (Stream faceimagestream = File.OpenRead("back" + time + ".jpg"))
             {
 
 
@@ -657,7 +717,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 sw.Start();//碼表開始計時
                 var faceserviceclient = new FaceServiceClient("2c2a7f6eca9e4197926721a886786d6b");
 
-                ProjectOxford.Face.Contract.Face[] faces = await faceserviceclient.DetectAsync(faceimagestream, false, true, 
+                ProjectOxford.Face.Contract.Face[] faces = await faceserviceclient.DetectAsync(faceimagestream, false, true,
                     new FaceAttributeType[] { FaceAttributeType.Gender, FaceAttributeType.Age, FaceAttributeType.Smile, FaceAttributeType.HeadPose });
 
                 sw.Stop();//碼錶停止
@@ -727,7 +787,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         faceimg_y[facecount] = Convert.ToInt32(y);
                         faceimg_width[facecount] = width;
                         faceimg_height[facecount] = height;
-                       
+
 
                         StringBuilder st = new StringBuilder();
                         st.Append("faceimg");
@@ -753,7 +813,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     }
                     else
                     {
-                       // using (Bitmap CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(Convert.ToInt32(x), Convert.ToInt32(y), width, height), oribmp.PixelFormat)))
+                        // using (Bitmap CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(Convert.ToInt32(x), Convert.ToInt32(y), width, height), oribmp.PixelFormat)))
                         using (Bitmap CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(Convert.ToInt32(face.FaceRectangle.Left), Convert.ToInt32(face.FaceRectangle.Top), face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat)))
                         {
                             faceimg_x[facecount] = Convert.ToInt32(x);
@@ -809,19 +869,19 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 string result4 = sw.Elapsed.TotalMilliseconds.ToString();
                 System.Console.WriteLine("cal top & save faceimg :" + result4);
                 sw.Reset();
-                
+
 
                 //body+face
-                for (int j=1; j<=facecount; j++)
+                for (int j = 1; j <= facecount; j++)
                 {
                     StringBuilder body_img = new StringBuilder();
                     //body_img.Append("Images/");
-                     
+
                     if (faceimg_gender[j] == 1)
                     {
                         body_img.Append("man_");
                     }
-                    else if(faceimg_gender[j] == 2)
+                    else if (faceimg_gender[j] == 2)
                     {
                         body_img.Append("woman_");
                     }
@@ -830,7 +890,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     {
                         body_img.Append("young");
                     }
-                    else if (faceimg_age[j]>35)
+                    else if (faceimg_age[j] > 35)
                     {
                         body_img.Append("mature");
                     }
@@ -862,18 +922,20 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 st.Append("faceimg");
                                 st.Append(Facename_Pool[j]);
                                 st.Append(".png");
-                                
+
                                 body_face = Image.FromFile(st.ToString());
-                                int bx=0, by=0;
+                                int bx = 0, by = 0;
                                 if (body_img.ToString().Equals("man_mature.png"))
                                 {
                                     bx = 760;
                                     by = 656;
-                                }else if (body_img.ToString().Equals("man_young.png"))
+                                }
+                                else if (body_img.ToString().Equals("man_young.png"))
                                 {
                                     bx = 823;
                                     by = 535;
                                 }
+
                                     //canvas.DrawImage(temp_face, bg_faceimg_x[pool.IndexOf(i) + 1], bg_faceimg_y[pool.IndexOf(i) + 1], bg_faceimg_width[pool.IndexOf(i) + 1], bg_faceimg_height[pool.IndexOf(i) + 1]);
                                 canvas.DrawImage(body_face,bx, by, 340, 340);
                                 canvas.Save();
@@ -889,7 +951,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                     using (Bitmap resizedBitmap = new Bitmap(tempBitmap, new System.Drawing.Size((int)(Utils.Constants.FIGURE_WIDTH * Utils.Constants.resizeRatio), (int)(Constants.FIGURE_HEIGHT * Constants.resizeRatio))))
                                     {
                                         resizedBitmap.Save(fi_path, System.Drawing.Imaging.ImageFormat.Png);
+
                                         Mode_State = State.Background; // Choose background
+
                                     }
                                 }
 
@@ -913,6 +977,12 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             view_mode = 1;
             BackGround_Screen.Visibility = Visibility.Visible;
             DefaultScreen.Visibility = Visibility.Collapsed;
+
+            shot_button.Visibility = Visibility.Collapsed;
+            wave_lhandes.Visibility = Visibility.Visible;
+            wave_rhandes.Visibility = Visibility.Visible;
+            hand_text.Visibility = Visibility.Visible;
+            BackGround_Screen.Source = bg_pool[imgno];
 
         }
 
@@ -1210,7 +1280,63 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 ColorImageFormat.Bgra);
 
                             this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
+                            if (qr == 1)
+                            {
+
+                                Console.WriteLine("qrrrrrr");
+                                Console.WriteLine(qr);
+                                StringBuilder st = new StringBuilder();
+                                st.Append("F:\\");
+                                st.Append("MTC_");
+                                st.Append(Facename_Pool[1]);
+                                st.Append(".jpg");
+                                //string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                                //string fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
+                                string fi_path = st.ToString();
+                                /*
+                                Bitmap qr_bitmap = BitmapFromWriteableBitmap(this.colorBitmap);
+                                //new Bitmap(Image.FromFile(path));
+
+                                ZXing.IBarcodeReader reader = new ZXing.BarcodeReader();
+                                ZXing.Result result = reader.Decode(qr_bitmap);
+
+                                //string result = findQrCodeText(new ZXing.QrCode.QRCodeReader(), qr_bitmap);
+
+
+                                System.Console.WriteLine("result:" + result);
+                                if (result != null)
+                                {
+                                    // label1.Text = result.Text;
+                                    System.Console.WriteLine(result);
+                                    try
+                                    {
+                                        SmtpClient mailServer = new SmtpClient("smtp.gmail.com", 587);
+                                        mailServer.EnableSsl = true;
+
+                                        mailServer.Credentials = new System.Net.NetworkCredential("test125899@gmail.com", "test1258");
+
+                                        string[] split_strs = result.Text.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                                        //則string[] strs的內容為  mailto ,  user@mail.com
+                                        string from = "test125899@gmail.com";
+                                        //string to = "hank125899@gmail.com";
+                                        string to = split_strs[1];
+                                        System.Console.WriteLine(to);
+                                        MailMessage msg = new MailMessage(from, to);
+                                        msg.Subject = "Hello From Microsoft :)";
+                                        msg.Body = "The message goes here.";
+                                        msg.Attachments.Add(new Attachment(fi_path));
+                                        mailServer.Send(msg);
+                                        timer.Stop();
+                                        string reverseString = "default";
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("Unable to send email. Error : " + ex);
+                                    }
+                                }*/
+                            }
                         }
+
 
                         this.colorBitmap.Unlock();
                     }

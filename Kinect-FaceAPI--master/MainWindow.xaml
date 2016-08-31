@@ -20,7 +20,7 @@
             <Grid>
               <StackPanel Orientation="Horizontal" Background="Transparent">
                 <TextBlock x:Name="ScreenshotText" Text="{TemplateBinding Content}" TextAlignment="Left"  VerticalAlignment="Center" Foreground="{StaticResource KinectPurpleBrush}" FontSize="15" />
-                <Grid Margin="9,0,0,0">
+                  <Grid Margin="9,0,0,0">
                   <Image x:Name="ScreenshotNormal" Source="Images\shot.png" Stretch="None" HorizontalAlignment="Center"  />
                   <Image x:Name="ScreenshotHover" Source="Images\shoth.png" Stretch="None" HorizontalAlignment="Center" Visibility="Collapsed" />
                 </Grid>
@@ -37,7 +37,57 @@
         </Setter.Value>
       </Setter>
     </Style>
-  </Window.Resources>
+        <Style TargetType="{x:Type Button}" x:Key="CheckButton" >
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" Background="Transparent">
+                               
+                                <Grid Margin="9,0,0,0">
+                                    <Image x:Name="CheckNormal" Source="Images\check.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center"  />
+                                    <Image x:Name="CheckHover" Source="Images\check.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center" Visibility="Collapsed" />
+                                </Grid>
+                                <TextBlock x:Name="CheckText" Text="{TemplateBinding Content}" TextAlignment="Right"  VerticalAlignment="Center" Foreground="{StaticResource KinectPurpleBrush}" FontSize="36" />
+                            </StackPanel>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Visibility" Value="Collapsed" TargetName="CheckNormal" />
+                                <Setter Property="Visibility" Value="Visible" TargetName="CheckHover" />
+                                <Setter Property="Foreground" Value="{StaticResource KinectBlueBrush}" TargetName="CheckText" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type Button}" x:Key="RetryButton" >
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" Background="Transparent">
+
+                                <Grid Margin="9,0,0,0">
+                                    <Image x:Name="RetryNormal" Source="Images\retry.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center"  />
+                                    <Image x:Name="RetryHover" Source="Images\retry.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center" Visibility="Collapsed" />
+                                </Grid>
+                                <TextBlock x:Name="RetryText" Text="{TemplateBinding Content}" TextAlignment="Right"  VerticalAlignment="Center" Foreground="{StaticResource KinectPurpleBrush}" FontSize="36" />
+                            </StackPanel>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Visibility" Value="Collapsed" TargetName="RetryNormal" />
+                                <Setter Property="Visibility" Value="Visible" TargetName="RetryHover" />
+                                <Setter Property="Foreground" Value="{StaticResource KinectBlueBrush}" TargetName="RetryText" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
   <Grid Margin="10 0 10 0" >
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
@@ -60,32 +110,33 @@
                    Visibility="Collapsed"  
                    Stretch="UniformToFill" />
     </Viewbox>
-        
+
+        <Button x:Name="check_button" Visibility="Collapsed" Grid.Row ="2" Style="{StaticResource CheckButton}" Content="  Yes"  Height="100"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="510 20 0 45" Click="CheckButton_Click" />
+        <Button x:Name="retry_button" Visibility="Collapsed" Grid.Row ="2" Style="{StaticResource RetryButton}" Content="  Retry"  Height="100"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 20 450 50" Click="RetryButton_Click" />
+
         <Button x:Name="shot_button" Grid.Row ="2" Style="{StaticResource ScreenshotButton}" Content=""  Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="15 10 0 5" Click="ScreenshotButton_Click" />
         <Image  x:Name="wave_lhandes"   Visibility="Collapsed" Source="Images/lhands.png" Grid.Row ="2"    Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 200 0" />
         <TextBlock  x:Name="hand_text"  Visibility="Collapsed" HorizontalAlignment="Center" Grid.Row ="2"  Margin="0 0 -1 0" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="24">  <Run Text="        揮動你的雙手" />  <LineBreak/>
         <Run Text="    選擇你想要的場景" /></TextBlock>
+        <StackPanel Grid.Row="2">
+            <TextBox HorizontalAlignment="Center"
+         Grid.Row ="2"        
+         x:Name="email_text"
+         Visibility="Collapsed"
+		 Height="50"
+         FontSize="30"
+         FontStretch="SemiExpanded"
+		 Margin="10,30,0,0"
+		 TextWrapping="Wrap"
+         Padding="0,2,0,0"
+         TextAlignment="Center"
+		 Text=""
+		 VerticalAlignment="Center"
+		 Width="500"
+		 TextChanged="TextBox_TextChanged"/>
+        <TextBlock  x:Name="qr_text"  Visibility="Collapsed" HorizontalAlignment="Center" Grid.Row ="2" Height="130" Margin="0 20 -1 0" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="24">  <Run Text="     請將您的QR Code" />  <LineBreak/>
+        <Run Text="      放置螢幕前掃描" /></TextBlock>
+        </StackPanel>
         <Image  x:Name="wave_rhandes"   Visibility="Collapsed" Source="Images/rhands.png" Grid.Row ="2"    Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="250 0 0 0" />
-        <Button x:Name="btn_confirm"   
-                Visibility="Collapsed" 
-                Grid.Row ="2"    
-                Height="75"   
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Center" 
-                Margin="0 0 100 0" 
-                Click="ResultConfirmButton_Click">
-            <Image Source="Images/confirm.png" ></Image>
-        </Button>
-
-        <Button x:Name="btn_cancel"   
-                Visibility="Collapsed" 
-                Grid.Row ="2"    
-                Height="75"   
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Center" 
-                Margin="150 0 0 0"
-                 Click="ResultCancelButton_Click">
-            <Image Source="Images/cancel.png" ></Image>
-        </Button>
     </Grid>
 </Window>
