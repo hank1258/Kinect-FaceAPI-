@@ -96,8 +96,7 @@
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
      
-
-                <Image Grid.Row="0" HorizontalAlignment="Left" Source="Images\rsz_microsoft.png" Stretch="Fill" Height="32" Width="100" Margin="0 10 0 5" />
+                <Image Grid.Row="0" HorizontalAlignment="Left" Source="Images\rsz_microsoft.png" Stretch="Uniform" Height="40" Width="Auto" Margin="0 10 0 5" />
         <TextBlock Grid.Row="0" HorizontalAlignment="Right" Margin="0 0 -1 0" VerticalAlignment="Bottom" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="24">MTC</TextBlock>
     <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
     
@@ -137,6 +136,53 @@
         <TextBlock  x:Name="qr_text"  Visibility="Collapsed" HorizontalAlignment="Center" Grid.Row ="2" Height="130" Margin="0 20 -1 0" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="24">  <Run Text="     請將您的QR Code" />  <LineBreak/>
         <Run Text="      放置螢幕前掃描" /></TextBlock>
         </StackPanel>
-        <Image  x:Name="wave_rhandes"   Visibility="Collapsed" Source="Images/rhands.png" Grid.Row ="2"    Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="250 0 0 0" />
+        <Image  x:Name="wave_rhandes"  Visibility="Collapsed" Source="Images/rhands.png" Grid.Row ="2"    Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="250 0 0 0" />
+
+        <Canvas x:Name="qrcode_frame"  Visibility="Collapsed" Height="300" Width="300" Grid.Row ="1" >
+            <Line
+                X1="10" Y1="8"
+                X2="10" Y2="50"
+                StrokeThickness="4"
+                Stroke="LightGreen"/>
+            <Line
+                X1="10" Y1="10"
+                X2="50" Y2="10"
+                StrokeThickness="4"
+                Stroke="LightGreen"/>
+
+            <Line
+                X1="290" Y1="8"
+                X2="290" Y2="50"
+                StrokeThickness="4"
+                Stroke="LightGreen"/>
+            <Line
+                X1="290" Y1="10"
+                X2="250" Y2="10"
+                StrokeThickness="4"
+                Stroke="LightGreen"/>
+
+            <Line
+                X1="290" Y1="290"
+                X2="250" Y2="290"
+                StrokeThickness="4"
+                Stroke="LightGreen"/>
+            <Line
+                X1="290" Y1="292"
+                X2="290" Y2="250"
+                StrokeThickness="4"
+                Stroke="LightGreen"/>
+
+            <Line
+                X1="10" Y1="290"
+                X2="50" Y2="290"
+                StrokeThickness="4"
+                Stroke="LightGreen"/>
+            <Line
+                X1="10" Y1="292"
+                X2="10" Y2="250"
+                StrokeThickness="4"
+                Stroke="LightGreen"/>
+        </Canvas>
     </Grid>
+    
 </Window>

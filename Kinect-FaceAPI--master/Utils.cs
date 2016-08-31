@@ -9,6 +9,7 @@ namespace Utils
 {
     static public class Constants
     {
+        public const int QRIMG_SIZE = 800;
         public const bool WHITE_BOARDING = false;
         public const int MAX_BG_NUM = 13;
         public const int MAX_FACE_NUM = 4;
