@@ -137,8 +137,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             //    _faceattributes.Add(FaceAttributeType.Smile);
             //   _faceattributes.Add(FaceAttributeType.FacialHair);
 
-            timer = new DispatcherTimer();
-            timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
+           // timer = new DispatcherTimer();
+           // timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
             imgno = 1;
             // timer.Tick += Timer_Tick;
 
@@ -326,7 +326,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                                         // fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
                                         StringBuilder st = new StringBuilder();
-                                        st.Append("F:\\");
+                                        st.Append("F:\\MTC\\");
                                         st.Append("MTC_");
                                         st.Append(Facename_Pool[1]);
                                         st.Append(".jpg");
@@ -360,26 +360,25 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     case State.Result:
                         if (qr == 1)
                         {
-                            /*
-                            BackGround_Screen.Source = bg_pool[imgno];
-                            BackGround_Screen.Visibility = Visibility.Collapsed;
-                            check_button.Visibility = Visibility.Collapsed;
-                            retry_button.Visibility = Visibility.Collapsed;
-                            DefaultScreen.Visibility = Visibility.Visible;
+                            
+                            Console.WriteLine("ffffffffffffffffffuc");
+                            timer = new DispatcherTimer();
+                            timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
 
-                            // shot_button.Visibility = Visibility.Visible;
-                            qr_text.Visibility = Visibility.Visible;
-                            email_text.Visibility = Visibility.Visible;*/
+                            timer.Tick += Timer_Tick;
+                            timer.Start();
+                            Mode_State = State.QRcode;
                         }
-                        else
-                        {
-                            qr = 0;
-                        }
+                        
 
                         break;
                     case State.QRcode:
-
-
+                        /*Console.WriteLine("ffffffffffffffffffuc");
+                        timer = new DispatcherTimer();
+                        timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
+                         
+                        timer.Tick += Timer_Tick;
+                        timer.Start();*/
 
 
 
@@ -404,17 +403,71 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
         private async void Timer_Tick(object sender, EventArgs e)
         {
+            Console.WriteLine("qTTTTTTTTTT");
+            Console.WriteLine(qr);
+            StringBuilder st = new StringBuilder();
+            st.Append("F:\\MTC\\");
+            st.Append("MTC_");
+            st.Append(Facename_Pool[1]);
+            st.Append(".jpg");
+            //string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            //string fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
+            string fi_path = st.ToString();
 
+             Image qr_bitmap =  BitmapFromWriteableBitmap(this.colorBitmap);
+            // BitmapImage bitmap = ConvertWriteableBitmapToBitmapImage(colorBitmap);
+            //new Bitmap(Image.FromFile(path));
+            // Bitmap qr_bitmap = BitmapImage2Bitmap(bitmap);
+           
+            ZXing.IBarcodeReader reader = new ZXing.BarcodeReader();
+            ZXing.Result result = reader.Decode((Bitmap)qr_bitmap);
+
+            //string result = findQrCodeText(new ZXing.QrCode.QRCodeReader(), qr_bitmap);
+
+
+            System.Console.WriteLine("result:" + result);
+            if (result != null)
+            {
+                // label1.Text = result.Text;
+                System.Console.WriteLine(result);
+                try
+                {
+                    SmtpClient mailServer = new SmtpClient("smtp.gmail.com", 587);
+                    mailServer.EnableSsl = true;
+
+                    mailServer.Credentials = new System.Net.NetworkCredential("test125899@gmail.com", "test1258");
+
+                    string[] split_strs = result.Text.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                    //則string[] strs的內容為  mailto ,  user@mail.com
+                    string from = "test125899@gmail.com";
+                    //string to = "hank125899@gmail.com";
+                    string to = split_strs[1];
+                    System.Console.WriteLine(to);
+                    MailMessage msg = new MailMessage(from, to);
+                    msg.Subject = "Hello From Microsoft :)";
+                    msg.Body = "The message goes here.";
+                    msg.Attachments.Add(new Attachment(fi_path));
+                    mailServer.Send(msg);
+                    timer.Stop();
+                    string reverseString = "default";
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Unable to send email. Error : " + ex);
+                }
+            }
+
+            /*
             //imgno++;
             if (shareVariable.Equals("default"))
             {
                 //do nothing
             }
             else if (shareVariable.Equals("qrcode"))
-            {
+            { 
 
                 //System.Console.WriteLine(bg_pool[1]);
-                /*
+                
                 Bitmap bitmap = BitmapFromWriteableBitmap(this.colorBitmap);
                 BitmapEncoder encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
@@ -425,68 +478,61 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 qr_st.Append(".jpg");
                 string path = System.IO.Path.Combine(myPhotos, qr_st.ToString());
                 */
-                // FileStream is IDisposable
-                try
+            // FileStream is IDisposable
+            /*
+            try
+            { 
+                string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+                string fi_path = System.IO.Path.Combine(Fi_Photos, "Final" + final_name + ".jpg");
+
+                Bitmap qr_bitmap = BitmapFromWriteableBitmap(this.colorBitmap);//new Bitmap(Image.FromFile(path));
+
+                ZXing.IBarcodeReader reader = new ZXing.BarcodeReader();
+                ZXing.Result result = reader.Decode(qr_bitmap);
+
+                //string result = findQrCodeText(new ZXing.QrCode.QRCodeReader(), qr_bitmap);
+
+
+                System.Console.WriteLine("result:" + result);
+                if (result != null)
                 {
-                    /*
-                    using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+                    // label1.Text = result.Text;
+                    System.Console.WriteLine(result);
+                    try
                     {
-                        encoder.Save(fs);
-                        fs.Close();
+                        SmtpClient mailServer = new SmtpClient("smtp.gmail.com", 587);
+                        mailServer.EnableSsl = true;
+
+                        mailServer.Credentials = new System.Net.NetworkCredential("test125899@gmail.com", "test1258");
+
+                        string[] split_strs = result.Text.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                        //則string[] strs的內容為  mailto ,  user@mail.com
+                        string from = "test125899@gmail.com";
+                        //string to = "hank125899@gmail.com";
+                        string to = split_strs[1];
+                        System.Console.WriteLine(to);
+                        MailMessage msg = new MailMessage(from, to);
+                        msg.Subject = "Hello From Microsoft :)";
+                        msg.Body = "The message goes here.";
+                        msg.Attachments.Add(new Attachment(fi_path));
+                        mailServer.Send(msg);
+                        timer.Stop();
+                        string reverseString = "default";
                     }
-                    
-                    */
-                    string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-
-                    string fi_path = System.IO.Path.Combine(Fi_Photos, "Final" + final_name + ".jpg");
-
-                    Bitmap qr_bitmap = BitmapFromWriteableBitmap(this.colorBitmap);//new Bitmap(Image.FromFile(path));
-
-                    ZXing.IBarcodeReader reader = new ZXing.BarcodeReader();
-                    ZXing.Result result = reader.Decode(qr_bitmap);
-
-                    //string result = findQrCodeText(new ZXing.QrCode.QRCodeReader(), qr_bitmap);
-
-
-                    System.Console.WriteLine("result:" + result);
-                    if (result != null)
+                    catch (Exception ex)
                     {
-                        // label1.Text = result.Text;
-                        System.Console.WriteLine(result);
-                        try
-                        {
-                            SmtpClient mailServer = new SmtpClient("smtp.gmail.com", 587);
-                            mailServer.EnableSsl = true;
-
-                            mailServer.Credentials = new System.Net.NetworkCredential("test125899@gmail.com", "test1258");
-
-                            string[] split_strs = result.Text.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                            //則string[] strs的內容為  mailto ,  user@mail.com
-                            string from = "test125899@gmail.com";
-                            //string to = "hank125899@gmail.com";
-                            string to = split_strs[1];
-                            System.Console.WriteLine(to);
-                            MailMessage msg = new MailMessage(from, to);
-                            msg.Subject = "Hello From Microsoft :)";
-                            msg.Body = "The message goes here.";
-                            msg.Attachments.Add(new Attachment(fi_path));
-                            mailServer.Send(msg);
-                            timer.Stop();
-                            string reverseString = "default";
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("Unable to send email. Error : " + ex);
-                        }
+                        Console.WriteLine("Unable to send email. Error : " + ex);
                     }
-
-                }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine(ex);
                 }
 
             }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex);
+            }
+
+        }*/
         }
         public static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
         {
@@ -520,7 +566,23 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 bitmap.UnlockBits(bitmapData);
             }
         }
-        private System.Drawing.Bitmap BitmapFromWriteableBitmap(WriteableBitmap writeBmp)
+        public BitmapImage ConvertWriteableBitmapToBitmapImage(WriteableBitmap wbm)
+        {
+            BitmapImage bmImage = new BitmapImage();
+            using (MemoryStream stream = new MemoryStream())
+            {
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(wbm));
+                encoder.Save(stream);
+                bmImage.BeginInit();
+                bmImage.CacheOption = BitmapCacheOption.OnLoad;
+                bmImage.StreamSource = stream;
+                bmImage.EndInit();
+                bmImage.Freeze();
+            }
+            return bmImage;
+        }
+        private  System.Drawing.Bitmap BitmapFromWriteableBitmap(WriteableBitmap writeBmp)
         {
             System.Drawing.Bitmap bmp;
             using (MemoryStream outStream = new MemoryStream())
@@ -620,7 +682,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         private void CheckButton_Click(object sender, RoutedEventArgs e)
         {
 
-            Mode_State = State.Default;
+            
 
             BackGround_Screen.Source = bg_pool[1];
             BackGround_Screen.Visibility = Visibility.Collapsed;
@@ -1245,7 +1307,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         /// </summary>
         /// <param name="sender">object sending the event</param>
         /// <param name="e">event arguments</param>
-        private void Reader_ColorFrameArrived(object sender, ColorFrameArrivedEventArgs e)
+        private async void Reader_ColorFrameArrived(object sender, ColorFrameArrivedEventArgs e)
         {
             // ColorFrame is IDisposable
             using (ColorFrame colorFrame = e.FrameReference.AcquireFrame())
@@ -1269,58 +1331,60 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
                             if (qr == 1)
                             {
-
-                                Console.WriteLine("qrrrrrr");
-                                Console.WriteLine(qr);
-                                StringBuilder st = new StringBuilder();
-                                st.Append("F:\\");
-                                st.Append("MTC_");
-                                st.Append(Facename_Pool[1]);
-                                st.Append(".jpg");
-                                //string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                                //string fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
-                                string fi_path = st.ToString();
                                 /*
-                                Bitmap qr_bitmap = BitmapFromWriteableBitmap(this.colorBitmap);
-                                //new Bitmap(Image.FromFile(path));
+                          Console.WriteLine("qCCCCCCC");
+                          Console.WriteLine(qr);
+                          StringBuilder st = new StringBuilder();
+                          st.Append("F:\\MTC\\");
+                          st.Append("MTC_");
+                          st.Append(Facename_Pool[1]);
+                          st.Append(".jpg");
+                          //string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                          //string fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
+                          string fi_path = st.ToString();
 
-                                ZXing.IBarcodeReader reader = new ZXing.BarcodeReader();
-                                ZXing.Result result = reader.Decode(qr_bitmap);
+                          // Bitmap qr_bitmap =  BitmapFromWriteableBitmap(colorBitmap);
+                          BitmapImage bitmap = ConvertWriteableBitmapToBitmapImage(colorBitmap);
+                          //new Bitmap(Image.FromFile(path));
+                          Bitmap qr_bitmap = BitmapImage2Bitmap(bitmap);
+                          ZXing.IBarcodeReader reader = new ZXing.BarcodeReader();
+                          ZXing.Result result = reader.Decode(qr_bitmap);
 
-                                //string result = findQrCodeText(new ZXing.QrCode.QRCodeReader(), qr_bitmap);
+                          //string result = findQrCodeText(new ZXing.QrCode.QRCodeReader(), qr_bitmap);
 
 
-                                System.Console.WriteLine("result:" + result);
-                                if (result != null)
-                                {
-                                    // label1.Text = result.Text;
-                                    System.Console.WriteLine(result);
-                                    try
-                                    {
-                                        SmtpClient mailServer = new SmtpClient("smtp.gmail.com", 587);
-                                        mailServer.EnableSsl = true;
+                          System.Console.WriteLine("result:" + result);
+                          if (result != null)
+                          {
+                              // label1.Text = result.Text;
+                              System.Console.WriteLine(result);
+                              try
+                              {
+                                  SmtpClient mailServer = new SmtpClient("smtp.gmail.com", 587);
+                                  mailServer.EnableSsl = true;
 
-                                        mailServer.Credentials = new System.Net.NetworkCredential("test125899@gmail.com", "test1258");
+                                  mailServer.Credentials = new System.Net.NetworkCredential("test125899@gmail.com", "test1258");
 
-                                        string[] split_strs = result.Text.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                                        //則string[] strs的內容為  mailto ,  user@mail.com
-                                        string from = "test125899@gmail.com";
-                                        //string to = "hank125899@gmail.com";
-                                        string to = split_strs[1];
-                                        System.Console.WriteLine(to);
-                                        MailMessage msg = new MailMessage(from, to);
-                                        msg.Subject = "Hello From Microsoft :)";
-                                        msg.Body = "The message goes here.";
-                                        msg.Attachments.Add(new Attachment(fi_path));
-                                        mailServer.Send(msg);
-                                        timer.Stop();
-                                        string reverseString = "default";
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Console.WriteLine("Unable to send email. Error : " + ex);
-                                    }
-                                }*/
+                                  string[] split_strs = result.Text.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                                  //則string[] strs的內容為  mailto ,  user@mail.com
+                                  string from = "test125899@gmail.com";
+                                  //string to = "hank125899@gmail.com";
+                                  string to = split_strs[1];
+                                  System.Console.WriteLine(to);
+                                  MailMessage msg = new MailMessage(from, to);
+                                  msg.Subject = "Hello From Microsoft :)";
+                                  msg.Body = "The message goes here.";
+                                  msg.Attachments.Add(new Attachment(fi_path));
+                                  mailServer.Send(msg);
+                                  timer.Stop();
+                                  string reverseString = "default";
+                              }
+                              catch (Exception ex)
+                              {
+                                  Console.WriteLine("Unable to send email. Error : " + ex);
+                              }
+                          }*/
+
                             }
                         }
 
