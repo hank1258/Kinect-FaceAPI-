@@ -100,8 +100,13 @@
       <HintPath>packages\ZedGraph.5.1.5\lib\ZedGraph.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="zxing">
-      <HintPath>..\..\..\Downloads\MyQRCode\MyQRCode\MyQRCode\zxing.dll</HintPath>
+    <Reference Include="zxing, Version=0.14.0.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>packages\ZXing.Net.0.14.0.1\lib\net40\zxing.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="zxing.presentation, Version=0.14.0.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>packages\ZXing.Net.0.14.0.1\lib\net40\zxing.presentation.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -214,6 +219,11 @@
   <ItemGroup>
     <Resource Include="Images\check.png" />
     <Resource Include="Images\retry.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\one.png" />
+    <Resource Include="Images\three.png" />
+    <Resource Include="Images\two.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

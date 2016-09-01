@@ -64,6 +64,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         int qr = 0;
         string shareVariable = "default";
         DispatcherTimer timer;
+        DispatcherTimer count_timer;
+        int countdown = 0;
         DispatcherTimer bgImage_timer;
         int imgno = 1;
         string final_name = "";
@@ -77,7 +79,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         private State Mode_State = State.Default;
         private string CurrentState = "D";
         Dictionary<int, string> Facename_Pool = new Dictionary<int, string>();
+        Dictionary<string, string> QR_DataBase = new Dictionary<string, string>();
         string[] state_buffer;
+
+        string[] HeadRandom ;
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -326,7 +331,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                                         // fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
                                         StringBuilder st = new StringBuilder();
-                                        st.Append("C:\\MTC\\");
+                                        st.Append("F:\\MTC\\");
                                         st.Append("MTC_");
                                         st.Append(Facename_Pool[1]);
                                         st.Append(".jpg");
@@ -405,13 +410,39 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 bg_pool[i] = new BitmapImage(new Uri(st.ToString(), UriKind.RelativeOrAbsolute));
             }
         }
+        private void CountTimer_Tick(object sender, EventArgs e)
+        {
+            countdown++;
+            if (countdown == 1)
+            {
+                image_three.Visibility = Visibility.Visible;
+            }
+            if (countdown == 2)
+            {
+                image_three.Visibility = Visibility.Collapsed;
+                image_two.Visibility = Visibility.Visible;
+            }
+            if (countdown == 3)
+            {
+                image_two.Visibility = Visibility.Collapsed;
+                image_one.Visibility = Visibility.Visible;
+            }
+            if (countdown == 4)
+            {
+                image_one.Visibility = Visibility.Collapsed;
+                test();
+                countdown = 0;
+                count_timer.Stop();
+            }
 
+
+        }
         private async void Timer_Tick(object sender, EventArgs e)
         {
             Console.WriteLine("qTTTTTTTTTT");
             Console.WriteLine(qr);
             StringBuilder st = new StringBuilder();
-            st.Append("C:\\MTC\\");
+            st.Append("F:\\MTC\\");
             st.Append("MTC_");
             st.Append(Facename_Pool[1]);
             st.Append(".jpg");
@@ -438,109 +469,16 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 DialogResult myResult = System.Windows.Forms.MessageBox.Show("你要選是還是否?", "顯示在彈出視窗上面的字", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 // label1.Text = result.Text;
                 System.Console.WriteLine(result);
-                try
-                {
-                    SmtpClient mailServer = new SmtpClient("smtp.gmail.com", 587);
-                    mailServer.EnableSsl = true;
-
-                    mailServer.Credentials = new System.Net.NetworkCredential("test125899@gmail.com", "test1258");
-
-                    string[] split_strs = result.Text.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                    //則string[] strs的內容為  mailto ,  user@mail.com
-                    string from = "test125899@gmail.com";
-                    //string to = "hank125899@gmail.com";
-                    string to = split_strs[1];
-                    System.Console.WriteLine(to);
-                    MailMessage msg = new MailMessage(from, to);
-                    msg.Subject = "Hello From Microsoft :)";
-                    msg.Body = "The message goes here.";
-                    msg.Attachments.Add(new Attachment(fi_path));
-                    mailServer.Send(msg);
-                    timer.Stop();
-                    string reverseString = "default";
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Unable to send email. Error : " + ex);
-                }
-            }
-
-            /*
-            //imgno++;
-            if (shareVariable.Equals("default"))
-            {
-                //do nothing
-            }
-            else if (shareVariable.Equals("qrcode"))
-            { 
-
-                //System.Console.WriteLine(bg_pool[1]);
+                QR_DataBase.Add(result.ToString(), "李經緯");
                 
-                Bitmap bitmap = BitmapFromWriteableBitmap(this.colorBitmap);
-                BitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
-                string myPhotos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                StringBuilder qr_st = new StringBuilder();
-                qr_st.Append("qr_temp");
-                qr_st.Append(final_name);
-                qr_st.Append(".jpg");
-                string path = System.IO.Path.Combine(myPhotos, qr_st.ToString());
-                */
-            // FileStream is IDisposable
-            /*
-            try
-            { 
-                string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-
-                string fi_path = System.IO.Path.Combine(Fi_Photos, "Final" + final_name + ".jpg");
-
-                Bitmap qr_bitmap = BitmapFromWriteableBitmap(this.colorBitmap);//new Bitmap(Image.FromFile(path));
-
-                ZXing.IBarcodeReader reader = new ZXing.BarcodeReader();
-                ZXing.Result result = reader.Decode(qr_bitmap);
-
-                //string result = findQrCodeText(new ZXing.QrCode.QRCodeReader(), qr_bitmap);
-
-
-                System.Console.WriteLine("result:" + result);
-                if (result != null)
-                {
-                    // label1.Text = result.Text;
-                    System.Console.WriteLine(result);
-                    try
-                    {
-                        SmtpClient mailServer = new SmtpClient("smtp.gmail.com", 587);
-                        mailServer.EnableSsl = true;
-
-                        mailServer.Credentials = new System.Net.NetworkCredential("test125899@gmail.com", "test1258");
-
-                        string[] split_strs = result.Text.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                        //則string[] strs的內容為  mailto ,  user@mail.com
-                        string from = "test125899@gmail.com";
-                        //string to = "hank125899@gmail.com";
-                        string to = split_strs[1];
-                        System.Console.WriteLine(to);
-                        MailMessage msg = new MailMessage(from, to);
-                        msg.Subject = "Hello From Microsoft :)";
-                        msg.Body = "The message goes here.";
-                        msg.Attachments.Add(new Attachment(fi_path));
-                        mailServer.Send(msg);
-                        timer.Stop();
-                        string reverseString = "default";
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Unable to send email. Error : " + ex);
-                    }
-                }
+                
+                // Create folder
+                StringBuilder file_st = new StringBuilder();
+                file_st.Append("F:\\MTC\\");
+                file_st.Append( QR_DataBase[result.ToString()]);
+                System.IO.Directory.CreateDirectory(file_st.ToString());
 
             }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine(ex);
-            }
-
-        }*/
         }
         public static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
         {
@@ -727,21 +665,29 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();//引用stopwatch物件
             sw.Reset();//碼表歸零
             sw.Start();//碼表開始計時
+            count_timer = new DispatcherTimer();
+            count_timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
 
-
+            count_timer.Tick += CountTimer_Tick;
+            count_timer.Start();
+           // Thread.Sleep(3000);
+            /*
             List<int> pool = new List<int>();
             Facename_Pool = new Dictionary<int, string>();
+            QR_DataBase = new Dictionary<string, string>();
             // create a png bitmap encoder which knows how to save a .png file
             BitmapEncoder encoder = new PngBitmapEncoder();
-
+         
 
             if (this.colorBitmap == null)
             {
                 return;
             }
+           
 
             // create frame from the writable bitmap and add to encoder
             encoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
+            
 
             string time = System.DateTime.Now.ToString("hh'-'mm'-'ss", CultureInfo.CurrentUICulture.DateTimeFormat);
 
@@ -755,15 +701,30 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 fs.Close();
             }
 
-
+            HeadRandom = System.IO.Path.GetRandomFileName().Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+            StringBuilder Mount_path = new StringBuilder();
+            Mount_path.Append("F://MTC//Original//");
+            Mount_path.Append("Original_");
+            Mount_path.Append(HeadRandom[0]);
+            Mount_path.Append(".jpg");
 
             Bitmap oribmp = new Bitmap(path);
             using(Bitmap tmpBmp = new Bitmap(oribmp))
             {
                 tmpBmp.Save("back.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                tmpBmp.Save(Mount_path.ToString(), System.Drawing.Imaging.ImageFormat.Jpeg);
             }
+
+            view_mode = 1;
+            DefaultScreen.Visibility = Visibility.Collapsed;
+            BackGround_Screen.Visibility = Visibility.Visible;
             
 
+            shot_button.Visibility = Visibility.Collapsed;
+            wave_lhandes.Visibility = Visibility.Visible;
+            wave_rhandes.Visibility = Visibility.Visible;
+            hand_text.Visibility = Visibility.Visible;
+            BackGround_Screen.Source = bg_pool[imgno];
 
 
             this.StatusText = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, path);
@@ -852,6 +813,13 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         faceimg_width[facecount] = width;
                         faceimg_height[facecount] = height;
 
+                        Mount_path.Length = 0;
+                        Mount_path.Append("F://MTC//Face//");
+                        Mount_path.Append("face_");
+                        Mount_path.Append(HeadRandom[0]);
+                        Mount_path.Append("_");
+                        Mount_path.Append(facecount.ToString());
+                        Mount_path.Append(".png");
 
                         StringBuilder st = new StringBuilder();
                         st.Append("faceimg");
@@ -872,6 +840,21 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 memory.Flush();
                                 memory.Close();
                             }
+                            
+                        }
+                        using (MemoryStream memory = new MemoryStream())
+                        {
+                            using (FileStream fs = new FileStream(Mount_path.ToString(), FileMode.Create, FileAccess.ReadWrite))
+                            {
+                                CroppedImage.Save(memory, ImageFormat.Png);
+                                byte[] bytes = memory.ToArray();
+                                fs.Write(bytes, 0, bytes.Length);
+                                fs.Flush();
+                                fs.Close();
+                                memory.Flush();
+                                memory.Close();
+                            }
+
                         }
                         CroppedImage.Dispose();
                     }
@@ -884,6 +867,14 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             faceimg_y[facecount] = Convert.ToInt32(y);
                             faceimg_width[facecount] = width;
                             faceimg_height[facecount] = height;
+
+                            Mount_path.Length = 0;
+                            Mount_path.Append("F://MTC//Face//");
+                            Mount_path.Append("face_");
+                            Mount_path.Append(HeadRandom[0]);
+                            Mount_path.Append("_");
+                            Mount_path.Append(facecount.ToString());
+                            Mount_path.Append(".png");
 
                             if (Constants.WHITE_BOARDING)
                             {
@@ -911,6 +902,20 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                     memory.Flush();
                                     memory.Close();
                                 }
+                            }
+                            using (MemoryStream memory = new MemoryStream())
+                            {
+                                using (FileStream fs = new FileStream(Mount_path.ToString(), FileMode.Create, FileAccess.ReadWrite))
+                                {
+                                    CroppedImage.Save(memory, ImageFormat.Png);
+                                    byte[] bytes = memory.ToArray();
+                                    fs.Write(bytes, 0, bytes.Length);
+                                    fs.Flush();
+                                    fs.Close();
+                                    memory.Flush();
+                                    memory.Close();
+                                }
+
                             }
                             CroppedImage.Dispose();
                         }
@@ -1038,6 +1043,61 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             frm.Show();
             timer.Start();
             */
+           
+
+        }
+
+        public async void test()
+        {
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();//引用stopwatch物件
+            sw.Reset();//碼表歸零
+            sw.Start();//碼表開始計時
+             
+            //Thread.Sleep(3000);
+
+            List<int> pool = new List<int>();
+            Facename_Pool = new Dictionary<int, string>();
+            QR_DataBase = new Dictionary<string, string>();
+            // create a png bitmap encoder which knows how to save a .png file
+            BitmapEncoder encoder = new PngBitmapEncoder();
+
+
+            if (this.colorBitmap == null)
+            {
+                return;
+            }
+
+
+            // create frame from the writable bitmap and add to encoder
+            encoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
+
+
+            string time = System.DateTime.Now.ToString("hh'-'mm'-'ss", CultureInfo.CurrentUICulture.DateTimeFormat);
+
+            string myPhotos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+            string path = System.IO.Path.Combine(myPhotos, "KinectScreenshot-Color" + time + ".jpg");
+            // FileStream is IDisposable
+            using (FileStream fs = new FileStream(path, FileMode.Create))
+            {
+                encoder.Save(fs);
+                fs.Close();
+            }
+
+            HeadRandom = System.IO.Path.GetRandomFileName().Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+            StringBuilder Mount_path = new StringBuilder();
+            Mount_path.Append("F://MTC//Original//");
+            Mount_path.Append("Original_");
+            Mount_path.Append(HeadRandom[0]);
+            Mount_path.Append(".jpg");
+
+            Bitmap oribmp = new Bitmap(path);
+            using (Bitmap tmpBmp = new Bitmap(oribmp))
+            {
+                tmpBmp.Save("back.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+                tmpBmp.Save(Mount_path.ToString(), System.Drawing.Imaging.ImageFormat.Jpeg);
+            }
+
             view_mode = 1;
             BackGround_Screen.Visibility = Visibility.Visible;
             DefaultScreen.Visibility = Visibility.Collapsed;
@@ -1048,8 +1108,324 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             hand_text.Visibility = Visibility.Visible;
             BackGround_Screen.Source = bg_pool[imgno];
 
-        }
 
+            this.StatusText = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, path);
+            System.Console.WriteLine(path);
+            using (Stream faceimagestream = File.OpenRead("back" + ".jpg"))
+            {
+
+
+                StringBuilder sb = new StringBuilder();
+                // Create source
+                // BitmapImage.UriSource must be in a BeginInit/EndInit block
+
+                // Call the Face API - request the FaceId, FaceLandmarks, and all FaceAttributes
+
+                sw.Start();//碼表開始計時
+                var faceserviceclient = new FaceServiceClient("2c2a7f6eca9e4197926721a886786d6b");
+
+                ProjectOxford.Face.Contract.Face[] faces = await faceserviceclient.DetectAsync(faceimagestream, false, true,
+                    new FaceAttributeType[] { FaceAttributeType.Gender, FaceAttributeType.Age, FaceAttributeType.Smile, FaceAttributeType.HeadPose });
+
+                sw.Stop();//碼錶停止
+                string result3 = sw.Elapsed.TotalMilliseconds.ToString();
+                System.Console.WriteLine("face api:" + result3);
+                sw.Reset();
+
+                if (faces.Length <= 0)
+                {
+                    return;
+                }
+
+                int[] faceimg_x = new int[Utils.Constants.MAX_FACE_NUM];
+                int[] faceimg_y = new int[Utils.Constants.MAX_FACE_NUM];
+                int[] faceimg_width = new int[Utils.Constants.MAX_FACE_NUM];
+                int[] faceimg_height = new int[Utils.Constants.MAX_FACE_NUM];
+                int[] faceimg_age = new int[Utils.Constants.MAX_FACE_NUM];
+                int[] faceimg_gender = new int[Utils.Constants.MAX_FACE_NUM]; //1 for man 2 for woman
+
+                sw.Start();
+                facecount = 0;
+                foreach (var face in faces)
+                {
+                    facecount++;
+                    // Get the detailed information from the face to display in the UI
+                    //        sb.Append(GetFaceInfo(face));
+                    int max_left = Convert.ToInt32(face.FaceLandmarks.EyebrowLeftOuter.X);
+                    int max_right = Convert.ToInt32(face.FaceLandmarks.EyebrowRightOuter.X);
+                    int max_buttom = Convert.ToInt32(face.FaceLandmarks.UnderLipBottom.Y);
+                    int[] top = new int[4];
+                    int max_top = int.MaxValue;
+                    top[0] = Convert.ToInt32(face.FaceLandmarks.EyebrowLeftInner.Y);
+                    top[1] = Convert.ToInt32(face.FaceLandmarks.EyebrowLeftOuter.Y);
+                    top[2] = Convert.ToInt32(face.FaceLandmarks.EyebrowRightInner.Y);
+                    top[3] = Convert.ToInt32(face.FaceLandmarks.EyebrowRightOuter.Y);
+                    for (int k = 0; k <= 3; k++)
+                    {
+                        if (top[k] < max_top)
+                        {
+                            max_top = top[k];
+                        }
+                    }
+
+                    int width = Convert.ToInt32(max_right - max_left);
+                    int height = Convert.ToInt32(max_buttom - max_top);
+                    int width_factor = Convert.ToInt32(width * 0.1);
+                    int height_factor = Convert.ToInt32(height * 0.3);
+                    System.Console.WriteLine("{0} {1}", max_left, max_top);
+                    System.Console.WriteLine("{0} {1}", width, height);
+                    System.Console.WriteLine("{0} {1}", width_factor, height_factor);
+                    width = width + Convert.ToInt32(width_factor * 1);
+                    height = height + Convert.ToInt32(height_factor * 1);
+                    //  Bitmap bmp = new Bitmap(width, height);
+                    float x = Convert.ToSingle(max_left - (width_factor)), y = Convert.ToSingle(max_top - (height_factor));
+
+                    string randomName = System.IO.Path.GetRandomFileName();
+
+                    string[] split_filestrs = randomName.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (face.FaceAttributes.HeadPose.Roll >= 10 || face.FaceAttributes.HeadPose.Roll <= -10)
+                    {
+                        System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Convert.ToInt32(x), Convert.ToInt32(y), width, height);
+
+                        Bitmap CroppedImage = new Bitmap(CropRotatedRect(oribmp, rect, Convert.ToSingle(face.FaceAttributes.HeadPose.Roll * -1), true));
+
+                        faceimg_x[facecount] = Convert.ToInt32(x);
+                        faceimg_y[facecount] = Convert.ToInt32(y);
+                        faceimg_width[facecount] = width;
+                        faceimg_height[facecount] = height;
+
+                        Mount_path.Length = 0;
+                        Mount_path.Append("F://MTC//Face//");
+                        Mount_path.Append("face_");
+                        Mount_path.Append(HeadRandom[0]);
+                        Mount_path.Append("_");
+                        Mount_path.Append(facecount.ToString());
+                        Mount_path.Append(".png");
+
+                        StringBuilder st = new StringBuilder();
+                        st.Append("faceimg");
+                        // st.Append(facecount.ToString());
+                        st.Append(split_filestrs[0]);
+                        Facename_Pool.Add(facecount, split_filestrs[0]);
+                        st.Append(".png");
+                        string outputFileName = st.ToString();
+                        using (MemoryStream memory = new MemoryStream())
+                        {
+                            using (FileStream fs = new FileStream(outputFileName, FileMode.Create, FileAccess.ReadWrite))
+                            {
+                                CroppedImage.Save(memory, ImageFormat.Png);
+                                byte[] bytes = memory.ToArray();
+                                fs.Write(bytes, 0, bytes.Length);
+                                fs.Flush();
+                                fs.Close();
+                                memory.Flush();
+                                memory.Close();
+                            }
+
+                        }
+                        using (MemoryStream memory = new MemoryStream())
+                        {
+                            using (FileStream fs = new FileStream(Mount_path.ToString(), FileMode.Create, FileAccess.ReadWrite))
+                            {
+                                CroppedImage.Save(memory, ImageFormat.Png);
+                                byte[] bytes = memory.ToArray();
+                                fs.Write(bytes, 0, bytes.Length);
+                                fs.Flush();
+                                fs.Close();
+                                memory.Flush();
+                                memory.Close();
+                            }
+
+                        }
+                        CroppedImage.Dispose();
+                    }
+                    else
+                    {
+                        // using (Bitmap CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(Convert.ToInt32(x), Convert.ToInt32(y), width, height), oribmp.PixelFormat)))
+                        using (Bitmap CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(Convert.ToInt32(face.FaceRectangle.Left), Convert.ToInt32(face.FaceRectangle.Top), face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat)))
+                        {
+                            faceimg_x[facecount] = Convert.ToInt32(x);
+                            faceimg_y[facecount] = Convert.ToInt32(y);
+                            faceimg_width[facecount] = width;
+                            faceimg_height[facecount] = height;
+
+                            Mount_path.Length = 0;
+                            Mount_path.Append("F://MTC//Face//");
+                            Mount_path.Append("face_");
+                            Mount_path.Append(HeadRandom[0]);
+                            Mount_path.Append("_");
+                            Mount_path.Append(facecount.ToString());
+                            Mount_path.Append(".png");
+
+                            if (Constants.WHITE_BOARDING)
+                            {
+                                using (Graphics g = Graphics.FromImage(CroppedImage))
+                                {
+                                    g.DrawRectangle(new System.Drawing.Pen(System.Drawing.Brushes.White, 10), new Rectangle(0, 0, CroppedImage.Width, CroppedImage.Height));
+                                }
+                            }
+
+                            StringBuilder st = new StringBuilder();
+                            st.Append("faceimg");
+                            st.Append(split_filestrs[0]);
+                            Facename_Pool.Add(facecount, split_filestrs[0]);
+                            st.Append(".png");
+                            string outputFileName = st.ToString();
+                            using (MemoryStream memory = new MemoryStream())
+                            {
+                                using (FileStream fs = new FileStream(outputFileName, FileMode.Create, FileAccess.ReadWrite))
+                                {
+                                    CroppedImage.Save(memory, ImageFormat.Png);
+                                    byte[] bytes = memory.ToArray();
+                                    fs.Write(bytes, 0, bytes.Length);
+                                    fs.Flush();
+                                    fs.Close();
+                                    memory.Flush();
+                                    memory.Close();
+                                }
+                            }
+                            using (MemoryStream memory = new MemoryStream())
+                            {
+                                using (FileStream fs = new FileStream(Mount_path.ToString(), FileMode.Create, FileAccess.ReadWrite))
+                                {
+                                    CroppedImage.Save(memory, ImageFormat.Png);
+                                    byte[] bytes = memory.ToArray();
+                                    fs.Write(bytes, 0, bytes.Length);
+                                    fs.Flush();
+                                    fs.Close();
+                                    memory.Flush();
+                                    memory.Close();
+                                }
+
+                            }
+                            CroppedImage.Dispose();
+                        }
+                    }
+
+                    if (face.FaceAttributes.Gender.Equals("male"))
+                    {
+                        faceimg_gender[facecount] = 1;
+                    }
+                    else if (face.FaceAttributes.Gender.Equals("female"))
+                    {
+                        faceimg_gender[facecount] = 2;
+                    }
+
+                    faceimg_age[facecount] = Convert.ToInt32(face.FaceAttributes.Age);
+
+
+                }
+                sw.Stop();//碼錶停止
+                string result4 = sw.Elapsed.TotalMilliseconds.ToString();
+                System.Console.WriteLine("cal top & save faceimg :" + result4);
+                sw.Reset();
+
+
+                //body+face
+                for (int j = 1; j <= facecount; j++)
+                {
+                    StringBuilder body_img = new StringBuilder();
+                    //body_img.Append("Images/");
+
+                    if (faceimg_gender[j] == 1)
+                    {
+                        body_img.Append("man_");
+                    }
+                    else if (faceimg_gender[j] == 2)
+                    {
+                        body_img.Append("woman_");
+                    }
+
+                    if (faceimg_age[j] <= 35)
+                    {
+                        body_img.Append("young");
+                    }
+                    else if (faceimg_age[j] > 35)
+                    {
+                        body_img.Append("mature");
+                    }
+                    body_img.Append(".png");
+
+                    Image body_face;
+                    Image body_frame = Image.FromFile(body_img.ToString());
+                    using (body_frame)
+                    {
+                        using (var bitmap = new Bitmap(body_frame.Width, body_frame.Height))
+                        {
+                            using (var canvas = Graphics.FromImage(bitmap))
+                            {
+                                //  canvas.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                                canvas.DrawImage(body_frame,
+                                                 new System.Drawing.Rectangle(0,
+                                                               0,
+                                                               body_frame.Width,
+                                                               body_frame.Height),
+                                                 new System.Drawing.Rectangle(0,
+                                                               0,
+                                                               body_frame.Width,
+                                                               body_frame.Height),
+                                                 GraphicsUnit.Pixel);
+
+
+
+                                StringBuilder st = new StringBuilder();
+                                st.Append("faceimg");
+                                st.Append(Facename_Pool[j]);
+                                st.Append(".png");
+
+                                body_face = Image.FromFile(st.ToString());
+                                int bx = 0, by = 0;
+                                if (body_img.ToString().Equals("man_mature.png"))
+                                {
+                                    bx = 760;
+                                    by = 656;
+                                }
+                                else if (body_img.ToString().Equals("man_young.png"))
+                                {
+                                    bx = 823;
+                                    by = 535;
+                                }
+
+                                //canvas.DrawImage(temp_face, bg_faceimg_x[pool.IndexOf(i) + 1], bg_faceimg_y[pool.IndexOf(i) + 1], bg_faceimg_width[pool.IndexOf(i) + 1], bg_faceimg_height[pool.IndexOf(i) + 1]);
+                                canvas.DrawImage(body_face, bx, by, 340, 340);
+                                canvas.Save();
+                            }
+                            try
+                            {
+                                string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+                                string fi_path = System.IO.Path.Combine(Fi_Photos, "Body" + Facename_Pool[j] + ".png");
+                                final_name = Facename_Pool[1];
+                                using (Bitmap tempBitmap = new Bitmap(bitmap))
+                                {
+                                    using (Bitmap resizedBitmap = new Bitmap(tempBitmap, new System.Drawing.Size((int)(Utils.Constants.FIGURE_WIDTH * Utils.Constants.resizeRatio), (int)(Constants.FIGURE_HEIGHT * Constants.resizeRatio))))
+                                    {
+                                        resizedBitmap.Save(fi_path, System.Drawing.Imaging.ImageFormat.Png);
+
+                                        Mode_State = State.Background; // Choose background
+
+                                    }
+                                }
+
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Console.WriteLine(ex);
+                            }
+                        }
+                    }
+                }
+
+            }
+            //
+            //Background_image = Image.FromFile("Status.png");
+            /*Window1 frm = new Window1(this);
+            frm.SetName(final_name);
+            frm.Show();
+            timer.Start();
+            */
+        }
         public void SetName(string name)
         {
             shareVariable = name;

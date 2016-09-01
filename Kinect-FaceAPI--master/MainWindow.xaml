@@ -137,7 +137,9 @@
         <Run Text="      放置螢幕前掃描" /></TextBlock>
         </StackPanel>
         <Image  x:Name="wave_rhandes"  Visibility="Collapsed" Source="Images/rhands.png" Grid.Row ="2"    Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="250 0 0 0" />
-
+        <Image  x:Name="image_three" Visibility="Collapsed"  Height="300" Width="300"  Source="Images/three.png" Grid.Row ="1"      HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 0" />
+        <Image  x:Name="image_two" Visibility="Collapsed" Height="300" Width="300"  Source="Images/two.png" Grid.Row ="1"      HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 0" />
+        <Image  x:Name="image_one" Visibility="Collapsed"  Height="300" Width="300"  Source="Images/one.png" Grid.Row ="1"      HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 0" />
         <Canvas x:Name="qrcode_frame"  Visibility="Collapsed" Height="300" Width="300" Grid.Row ="1" >
             <Line
                 X1="10" Y1="8"
