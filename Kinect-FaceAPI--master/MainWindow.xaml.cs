@@ -33,6 +33,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
     using Emgu.CV;
     using System.Windows.Interop;
     using System.Windows.Forms;
+    using LINQtoCSV;
 
     enum State { Default, Background, Result, QRcode };
 
@@ -83,6 +84,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         string[] state_buffer;
 
         string[] HeadRandom ;
+        Dictionary<string, Account> accounts = new Dictionary<string, Account>();
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -153,8 +155,23 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             Load_BgImage();
 
 
-
+            CsvFileDescription cd = new CsvFileDescription
+            {
+                SeparatorChar = ',',
+                FirstLineHasColumnNames = false,
+                EnforceCsvColumnAttribute = true
+            };
+            CsvContext cc = new CsvContext();
+            IEnumerable<Account> data = cc.Read<Account>(Constants.filename, cd);
+            foreach (Account acc in data)
+            {
+                if(!accounts.ContainsKey(acc.id))
+                { 
+                    accounts.Add(acc.id, acc);           
+                }
+            }
         }
+
         private async void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
 
@@ -361,17 +378,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         break;
 
                     case State.Result:
-                        /*
-                        wave_lhandes.Visibility = Visibility.Collapsed;
-                        wave_rhandes.Visibility = Visibility.Collapsed;
-                        hand_text.Visibility = Visibility.Collapsed;
-                        btn_confirm.Visibility = Visibility.Visible;
-                        btn_cancel.Visibility = Visibility.Visible;
-                        */
+   
                         if (qr == 1)
                         {
                             
-                            Console.WriteLine("ffffffffffffffffffuc");
                             timer = new DispatcherTimer();
                             timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
 
@@ -379,18 +389,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             timer.Start();
                             Mode_State = State.QRcode;
                         }
-                        
-
+                     
                         break;
                     case State.QRcode:
-
-                        /*Console.WriteLine("ffffffffffffffffffuc");
-                        timer = new DispatcherTimer();
-                        timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
-                         
-                        timer.Tick += Timer_Tick;
-                        timer.Start();*/
-
                        
                         break;
 
@@ -439,8 +440,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         }
         private async void Timer_Tick(object sender, EventArgs e)
         {
-            Console.WriteLine("qTTTTTTTTTT");
-            Console.WriteLine(qr);
             StringBuilder st = new StringBuilder();
             st.Append("F:\\MTC\\");
             st.Append("MTC_");
@@ -466,18 +465,20 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             System.Console.WriteLine("result:" + result);
             if (result != null)
             {
-                DialogResult myResult = System.Windows.Forms.MessageBox.Show("你要選是還是否?", "顯示在彈出視窗上面的字", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
                 // label1.Text = result.Text;
                 System.Console.WriteLine(result);
-                QR_DataBase.Add(result.ToString(), "李經緯");
+
                 
-                
+
+
                 // Create folder
                 StringBuilder file_st = new StringBuilder();
                 file_st.Append("F:\\MTC\\");
-                file_st.Append( QR_DataBase[result.ToString()]);
+                file_st.Append( getAmById(result.ToString()) );
                 System.IO.Directory.CreateDirectory(file_st.ToString());
 
+ 
             }
         }
         public static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
@@ -1004,9 +1005,18 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                     bx = 823;
                                     by = 535;
                                 }
+                                else if (body_img.ToString().Equals("woman_mature.png"))
+                                {
+                                    bx = 873;
+                                    by = 653;
+                                }
+                                else if(body_img.ToString().Equals("woman_young.png"))
+                                {
+                                    bx = 721;
+                                    by = 553;
+                                }
 
-                                    //canvas.DrawImage(temp_face, bg_faceimg_x[pool.IndexOf(i) + 1], bg_faceimg_y[pool.IndexOf(i) + 1], bg_faceimg_width[pool.IndexOf(i) + 1], bg_faceimg_height[pool.IndexOf(i) + 1]);
-                                canvas.DrawImage(body_face,bx, by, 340, 340);
+                                    canvas.DrawImage(body_face, bx, by, Constants.FIGURE_FACE_SIZE, Constants.FIGURE_FACE_SIZE);
                                 canvas.Save();
                             }
                             try
@@ -1775,6 +1785,29 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     bitmap.UnlockBits(bmpdata);
             }
 
+        }
+        public string getNameById(string key)
+        {
+            if (accounts.ContainsKey(key))
+                return accounts[key].name;
+            else
+                return string.Empty;
+        }
+
+        public string getCompanyById(string key)
+        {
+            if (accounts.ContainsKey(key))
+                return accounts[key].company;
+            else
+                return string.Empty;
+        }
+
+        public string getAmById(string key)
+        {
+            if (accounts.ContainsKey(key))
+                return accounts[key].am;
+            else
+                return null;
         }
     }
 }
