@@ -33,6 +33,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
     using Emgu.CV;
     using System.Windows.Interop;
     using System.Windows.Forms;
+    using LINQtoCSV;
 
     enum State { Default, Background, Result, QRcode };
 
@@ -78,6 +79,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         private string CurrentState = "D";
         Dictionary<int, string> Facename_Pool = new Dictionary<int, string>();
         string[] state_buffer;
+
+        Dictionary<string, Account> accounts = new Dictionary<string, Account>();
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -148,8 +151,23 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             Load_BgImage();
 
 
-
+            CsvFileDescription cd = new CsvFileDescription
+            {
+                SeparatorChar = ',',
+                FirstLineHasColumnNames = false,
+                EnforceCsvColumnAttribute = true
+            };
+            CsvContext cc = new CsvContext();
+            IEnumerable<Account> data = cc.Read<Account>(Constants.filename, cd);
+            foreach (Account acc in data)
+            {
+                if(!accounts.ContainsKey(acc.id))
+                { 
+                    accounts.Add(acc.id, acc);           
+                }
+            }
         }
+
         private async void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
 
@@ -356,17 +374,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         break;
 
                     case State.Result:
-                        /*
-                        wave_lhandes.Visibility = Visibility.Collapsed;
-                        wave_rhandes.Visibility = Visibility.Collapsed;
-                        hand_text.Visibility = Visibility.Collapsed;
-                        btn_confirm.Visibility = Visibility.Visible;
-                        btn_cancel.Visibility = Visibility.Visible;
-                        */
+   
                         if (qr == 1)
                         {
                             
-                            Console.WriteLine("ffffffffffffffffffuc");
                             timer = new DispatcherTimer();
                             timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
 
@@ -374,18 +385,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             timer.Start();
                             Mode_State = State.QRcode;
                         }
-                        
-
+                     
                         break;
                     case State.QRcode:
-
-                        /*Console.WriteLine("ffffffffffffffffffuc");
-                        timer = new DispatcherTimer();
-                        timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
-                         
-                        timer.Tick += Timer_Tick;
-                        timer.Start();*/
-
                        
                         break;
 
@@ -408,8 +410,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
         private async void Timer_Tick(object sender, EventArgs e)
         {
-            Console.WriteLine("qTTTTTTTTTT");
-            Console.WriteLine(qr);
             StringBuilder st = new StringBuilder();
             st.Append("C:\\MTC\\");
             st.Append("MTC_");
@@ -435,7 +435,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             System.Console.WriteLine("result:" + result);
             if (result != null)
             {
-                DialogResult myResult = System.Windows.Forms.MessageBox.Show("你要選是還是否?", "顯示在彈出視窗上面的字", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
                 // label1.Text = result.Text;
                 System.Console.WriteLine(result);
                 try
@@ -457,90 +457,12 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     msg.Attachments.Add(new Attachment(fi_path));
                     mailServer.Send(msg);
                     timer.Stop();
-                    string reverseString = "default";
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Unable to send email. Error : " + ex);
                 }
             }
-
-            /*
-            //imgno++;
-            if (shareVariable.Equals("default"))
-            {
-                //do nothing
-            }
-            else if (shareVariable.Equals("qrcode"))
-            { 
-
-                //System.Console.WriteLine(bg_pool[1]);
-                
-                Bitmap bitmap = BitmapFromWriteableBitmap(this.colorBitmap);
-                BitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
-                string myPhotos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                StringBuilder qr_st = new StringBuilder();
-                qr_st.Append("qr_temp");
-                qr_st.Append(final_name);
-                qr_st.Append(".jpg");
-                string path = System.IO.Path.Combine(myPhotos, qr_st.ToString());
-                */
-            // FileStream is IDisposable
-            /*
-            try
-            { 
-                string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-
-                string fi_path = System.IO.Path.Combine(Fi_Photos, "Final" + final_name + ".jpg");
-
-                Bitmap qr_bitmap = BitmapFromWriteableBitmap(this.colorBitmap);//new Bitmap(Image.FromFile(path));
-
-                ZXing.IBarcodeReader reader = new ZXing.BarcodeReader();
-                ZXing.Result result = reader.Decode(qr_bitmap);
-
-                //string result = findQrCodeText(new ZXing.QrCode.QRCodeReader(), qr_bitmap);
-
-
-                System.Console.WriteLine("result:" + result);
-                if (result != null)
-                {
-                    // label1.Text = result.Text;
-                    System.Console.WriteLine(result);
-                    try
-                    {
-                        SmtpClient mailServer = new SmtpClient("smtp.gmail.com", 587);
-                        mailServer.EnableSsl = true;
-
-                        mailServer.Credentials = new System.Net.NetworkCredential("test125899@gmail.com", "test1258");
-
-                        string[] split_strs = result.Text.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                        //則string[] strs的內容為  mailto ,  user@mail.com
-                        string from = "test125899@gmail.com";
-                        //string to = "hank125899@gmail.com";
-                        string to = split_strs[1];
-                        System.Console.WriteLine(to);
-                        MailMessage msg = new MailMessage(from, to);
-                        msg.Subject = "Hello From Microsoft :)";
-                        msg.Body = "The message goes here.";
-                        msg.Attachments.Add(new Attachment(fi_path));
-                        mailServer.Send(msg);
-                        timer.Stop();
-                        string reverseString = "default";
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Unable to send email. Error : " + ex);
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine(ex);
-            }
-
-        }*/
         }
         public static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
         {
@@ -999,9 +921,18 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                     bx = 823;
                                     by = 535;
                                 }
+                                else if (body_img.ToString().Equals("woman_mature.png"))
+                                {
+                                    bx = 873;
+                                    by = 653;
+                                }
+                                else if(body_img.ToString().Equals("woman_young.png"))
+                                {
+                                    bx = 721;
+                                    by = 553;
+                                }
 
-                                    //canvas.DrawImage(temp_face, bg_faceimg_x[pool.IndexOf(i) + 1], bg_faceimg_y[pool.IndexOf(i) + 1], bg_faceimg_width[pool.IndexOf(i) + 1], bg_faceimg_height[pool.IndexOf(i) + 1]);
-                                canvas.DrawImage(body_face,bx, by, 340, 340);
+                                    canvas.DrawImage(body_face, bx, by, Constants.FIGURE_FACE_SIZE, Constants.FIGURE_FACE_SIZE);
                                 canvas.Save();
                             }
                             try
@@ -1399,6 +1330,29 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     bitmap.UnlockBits(bmpdata);
             }
 
+        }
+        public string getNameById(string key)
+        {
+            if (accounts.ContainsKey(key))
+                return accounts[key].name;
+            else
+                return string.Empty;
+        }
+
+        public string getCompanyById(string key)
+        {
+            if (accounts.ContainsKey(key))
+                return accounts[key].company;
+            else
+                return string.Empty;
+        }
+
+        public string getAmById(string key)
+        {
+            if (accounts.ContainsKey(key))
+                return accounts[key].am;
+            else
+                return null;
         }
     }
 }
