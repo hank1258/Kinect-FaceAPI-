@@ -87,5 +87,28 @@ namespace Utils
             }
             return bgImage;
         }
+
+        private static string eventHubName = "opendemoeh";
+        private static string connectionString = "Endpoint=sb://opendemoeh.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=6VujxD91yRAdF0Y3Hyq4UHIlnIetUm2ZcfJJ7QcfF6g=";
+
+        public static void sendFaceDetectedEvent(Face face, string path)
+        {
+            Random rand = new Random();
+            var eventHubClient = EventHubClient.CreateFromConnectionString(connectionString, eventHubName);
+
+            var dict = new Dictionary<string, string>();
+            dict.Add("id", face.FaceId.ToString());
+            dict.Add("gender", face.FaceAttributes.Gender);
+            dict.Add("age", face.FaceAttributes.Age.ToString());
+            dict.Add("date", DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
+            dict.Add("smile", face.FaceAttributes.Smile.ToString());
+            dict.Add("glasses", face.FaceAttributes.Glasses.ToString());
+            dict.Add("avgs", rand.Next(5, 8).ToString());
+            dict.Add("avgrank", (3 + rand.NextDouble() * 1.5).ToString());
+            dict.Add("path", path);
+
+            string json = JsonConvert.SerializeObject(dict, Formatting.Indented);
+            eventHubClient.Send(new EventData(Encoding.UTF8.GetBytes(json)));
+        }
     }
 }
