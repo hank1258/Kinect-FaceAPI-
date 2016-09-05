@@ -118,21 +118,7 @@
         <TextBlock  x:Name="hand_text"  Visibility="Collapsed" HorizontalAlignment="Center" Grid.Row ="2"  Margin="0 0 -1 0" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="24">  <Run Text="        揮動你的雙手" />  <LineBreak/>
         <Run Text="    選擇你想要的場景" /></TextBlock>
         <StackPanel Grid.Row="2">
-            <TextBox HorizontalAlignment="Center"
-         Grid.Row ="2"        
-         x:Name="email_text"
-         Visibility="Collapsed"
-		 Height="50"
-         FontSize="30"
-         FontStretch="SemiExpanded"
-		 Margin="10,30,0,0"
-		 TextWrapping="Wrap"
-         Padding="0,2,0,0"
-         TextAlignment="Center"
-		 Text=""
-		 VerticalAlignment="Center"
-		 Width="500"
-		 TextChanged="TextBox_TextChanged"/>
+             
         <TextBlock  x:Name="qr_text"  Visibility="Collapsed" HorizontalAlignment="Center" Grid.Row ="2" Height="130" Margin="0 20 -1 0" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="24">  <Run Text="     請將您的QR Code" />  <LineBreak/>
         <Run Text="      放置螢幕前掃描" /></TextBlock>
         </StackPanel>

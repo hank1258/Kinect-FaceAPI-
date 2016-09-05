@@ -85,6 +85,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
         string[] HeadRandom ;
         Dictionary<string, Account> accounts = new Dictionary<string, Account>();
+        Bitmap Final_Bitmap;
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -225,8 +226,79 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         Joint userJoint_Spine = body.Joints[JointType.SpineMid];
                         Joint userJoint_Head = body.Joints[JointType.Head];
 
+                        //雙手合十
+                        if (userJoint_HandRight.Position.X - userJoint_HandLeft.Position.X < 0.01f)
+                        {
+                            Image temp_body;
+                            Image frame = BitmapImage2Bitmap(bg_pool[imgno]);
+
+                            using (frame)
+                            {
+                                using (var bitmap = new Bitmap(frame.Width, frame.Height))
+                                {
+                                    using (var canvas = Graphics.FromImage(bitmap))
+                                    {
+                                        //  canvas.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                                        canvas.DrawImage(frame,
+                                                            new System.Drawing.Rectangle(0,
+                                                                        0,
+                                                                        frame.Width,
+                                                                        frame.Height),
+                                                            new System.Drawing.Rectangle(0,
+                                                                        0,
+                                                                        frame.Width,
+                                                                        frame.Height),
+                                                            GraphicsUnit.Pixel);
+
+                                        for (int i = 1; i <= facecount; i++)
+                                        {
+
+                                            Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                                            fi_path = System.IO.Path.Combine(Fi_Photos, "Body" + Facename_Pool[i] + ".png");
+                                            temp_body = Image.FromFile(fi_path);
+
+                                            int dx = Constants.POSITION_OFFSET[i - 1].X;// - Constants.FIGURE_OFFSET[0].X;
+                                            int dy = Constants.POSITION_OFFSET[i - 1].Y;// - Constants.FIGURE_OFFSET[0].Y;
+                                            canvas.DrawImage(temp_body, dx, dy, Constants.FIGURE_WIDTH * Constants.resizeRatio, Constants.FIGURE_HEIGHT * Constants.resizeRatio);
+
+                                        }
+
+                                        canvas.Save();
+
+                                    }
+                                    try
+                                    {
+                                        //Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+                                        // fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
+                                        StringBuilder st = new StringBuilder();
+                                        st.Append("Y:\\MTC\\");
+                                        st.Append("MTC_");
+                                        st.Append(Facename_Pool[1]);
+                                        st.Append(".jpg");
+                                        final_name = Facename_Pool[1];
+                                        using (Bitmap tempBitmap = new Bitmap(bitmap))
+                                        {
+                                            Final_Bitmap = tempBitmap;
+                                            tempBitmap.Save(st.ToString(), System.Drawing.Imaging.ImageFormat.Jpeg);
+                                        }
+                                        Mode_State = State.Result;
+                                        BackGround_Screen.Source = Bitmap2BitmapImage(bitmap);
+                                        hand_text.Visibility = Visibility.Collapsed;
+                                        wave_rhandes.Visibility = Visibility.Collapsed;
+                                        wave_lhandes.Visibility = Visibility.Collapsed;
+                                        check_button.Visibility = Visibility.Visible;
+                                        retry_button.Visibility = Visibility.Visible;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        System.Console.WriteLine(ex);
+                                    }
+                                }
+                            }
+                        }
                         //右手舉起
-                        if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
+                        else if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
                         {
                             //右手X位置-右手手肘的位置
                             float distance = userJoint_HandRight.Position.X - userJoint_ElbowRight.Position.X;
@@ -302,77 +374,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         {
                         }
 
-                        //雙手合十
-                        if (userJoint_HandRight.Position.X - userJoint_HandLeft.Position.X < 0.01f)
-                        {
-                            Image temp_body;
-                            Image frame = BitmapImage2Bitmap(bg_pool[imgno]);
-
-                            using (frame)
-                            {
-                                using (var bitmap = new Bitmap(frame.Width, frame.Height))
-                                {
-                                    using (var canvas = Graphics.FromImage(bitmap))
-                                    {
-                                        //  canvas.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                                        canvas.DrawImage(frame,
-                                                            new System.Drawing.Rectangle(0,
-                                                                        0,
-                                                                        frame.Width,
-                                                                        frame.Height),
-                                                            new System.Drawing.Rectangle(0,
-                                                                        0,
-                                                                        frame.Width,
-                                                                        frame.Height),
-                                                            GraphicsUnit.Pixel);
-
-                                        for (int i = 1; i <= facecount; i++)
-                                        {
-
-                                            Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                                            fi_path = System.IO.Path.Combine(Fi_Photos, "Body" + Facename_Pool[i] + ".png");
-                                            temp_body = Image.FromFile(fi_path);
-
-                                            int dx = Constants.POSITION_OFFSET[i - 1].X;// - Constants.FIGURE_OFFSET[0].X;
-                                            int dy = Constants.POSITION_OFFSET[i - 1].Y;// - Constants.FIGURE_OFFSET[0].Y;
-                                            canvas.DrawImage(temp_body, dx, dy, Constants.FIGURE_WIDTH * Constants.resizeRatio, Constants.FIGURE_HEIGHT * Constants.resizeRatio);
-
-                                        }
-
-                                        canvas.Save();
-
-                                    }
-                                    try
-                                    {
-                                        //Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-
-                                        // fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
-                                        StringBuilder st = new StringBuilder();
-                                        st.Append("F:\\MTC\\");
-                                        st.Append("MTC_");
-                                        st.Append(Facename_Pool[1]);
-                                        st.Append(".jpg");
-                                        final_name = Facename_Pool[1];
-                                        using (Bitmap tempBitmap = new Bitmap(bitmap))
-                                        {
-
-                                            tempBitmap.Save(st.ToString(), System.Drawing.Imaging.ImageFormat.Jpeg);
-                                        }
-                                        Mode_State = State.Result;
-                                        BackGround_Screen.Source = Bitmap2BitmapImage(bitmap);
-                                        hand_text.Visibility = Visibility.Collapsed;
-                                        wave_rhandes.Visibility = Visibility.Collapsed;
-                                        wave_lhandes.Visibility = Visibility.Collapsed;
-                                        check_button.Visibility = Visibility.Visible;
-                                        retry_button.Visibility = Visibility.Visible;
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        System.Console.WriteLine(ex);
-                                    }
-                                }
-                            }
-                        }
+                        
 
 
                         break;
@@ -438,10 +440,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
 
         }
-        private async void Timer_Tick(object sender, EventArgs e)
+        private void Timer_Tick(object sender, EventArgs e)
         {
             StringBuilder st = new StringBuilder();
-            st.Append("F:\\MTC\\");
+            st.Append("Y:\\MTC\\");
             st.Append("MTC_");
             st.Append(Facename_Pool[1]);
             st.Append(".jpg");
@@ -468,17 +470,53 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                 // label1.Text = result.Text;
                 System.Console.WriteLine(result);
-
-                
+                System.Console.WriteLine(getNameById(result.ToString()));
+                UTF8Encoding encoder = new UTF8Encoding();
+                byte[] bytes = Encoding.UTF8.GetBytes(getNameById("e4f01049-fc12-411a-9caa-6a8272b09b45"));
+                string utf8ReturnString = encoder.GetString(bytes);
+                System.Console.WriteLine(utf8ReturnString);
 
 
                 // Create folder
-                StringBuilder file_st = new StringBuilder();
-                file_st.Append("F:\\MTC\\");
-                file_st.Append( getAmById(result.ToString()) );
-                System.IO.Directory.CreateDirectory(file_st.ToString());
+                StringBuilder Mount_path = new StringBuilder();
+                Mount_path.Append("Y://MTC//");
+                Mount_path.Append(getAmById(result.ToString()));
+                System.IO.Directory.CreateDirectory(Mount_path.ToString());
+                Mount_path.Append("//photo_");
+                Mount_path.Append(getNameById(result.ToString()));
+                Mount_path.Append(".jpg");
 
- 
+                StringBuilder st2 = new StringBuilder();
+                st2.Append("Y:\\MTC\\");
+                st2.Append("MTC_");
+                st2.Append(Facename_Pool[1]);
+                st2.Append(".jpg");
+               
+
+                using (Bitmap tmpBmp = new Bitmap(st2.ToString()))
+                {
+                    tmpBmp.Save(Mount_path.ToString(), System.Drawing.Imaging.ImageFormat.Jpeg);
+                    timer.Stop();
+                    Mode_State = State.Default;
+
+                    qr_text.Visibility = Visibility.Collapsed;
+                    BackGround_Screen.Source = bg_pool[1];
+                    BackGround_Screen.Visibility = Visibility.Collapsed;
+                    check_button.Visibility = Visibility.Collapsed;
+                    retry_button.Visibility = Visibility.Collapsed;
+                    DefaultScreen.Visibility = Visibility.Visible;
+                    shot_button.Visibility = Visibility.Visible;
+                    qrcode_frame.Visibility = Visibility.Collapsed;
+
+                    view_mode = 0;
+                    qr = 0;
+
+
+                }
+
+
+
+
             }
         }
         public static BitmapSource CreateBitmapSourceFromGdiBitmap(Bitmap bitmap)
@@ -623,7 +661,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             // ... Get control that raised this event.
             // var textBox = sender as TextBox;
             // ... Change Window Title.
-            Console.WriteLine(email_text.Text);
+            
             // this.Title = textBox.Text +
             //"[Length = " + textBox.Text.Length.ToString() + "]";
         }
@@ -635,7 +673,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             retry_button.Visibility = Visibility.Collapsed;
             DefaultScreen.Visibility = Visibility.Visible;
             qr_text.Visibility = Visibility.Visible;
-            email_text.Visibility = Visibility.Visible;
+         
             qrcode_frame.Visibility = Visibility.Visible;
 
             view_mode = 0;
@@ -1096,7 +1134,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
             HeadRandom = System.IO.Path.GetRandomFileName().Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
             StringBuilder Mount_path = new StringBuilder();
-            Mount_path.Append("F://MTC//Original//");
+            Mount_path.Append("Y://MTC//Original//");
             Mount_path.Append("Original_");
             Mount_path.Append(HeadRandom[0]);
             Mount_path.Append(".jpg");
@@ -1206,7 +1244,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         faceimg_height[facecount] = height;
 
                         Mount_path.Length = 0;
-                        Mount_path.Append("F://MTC//Face//");
+                        Mount_path.Append("Y://MTC//Face//");
                         Mount_path.Append("face_");
                         Mount_path.Append(HeadRandom[0]);
                         Mount_path.Append("_");
@@ -1261,7 +1299,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             faceimg_height[facecount] = height;
 
                             Mount_path.Length = 0;
-                            Mount_path.Append("F://MTC//Face//");
+                            Mount_path.Append("Y://MTC//Face//");
                             Mount_path.Append("face_");
                             Mount_path.Append(HeadRandom[0]);
                             Mount_path.Append("_");
