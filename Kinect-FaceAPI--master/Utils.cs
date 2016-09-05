@@ -88,13 +88,14 @@ namespace Utils
             return bgImage;
         }
 
-        private static string eventHubName = "opendemoeh";
-        private static string connectionString = "Endpoint=sb://opendemoeh.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=6VujxD91yRAdF0Y3Hyq4UHIlnIetUm2ZcfJJ7QcfF6g=";
+        private static string EVENT_HUB = "opendemoeh";
+        private static string CONNECTION_STRING = "Endpoint=sb://opendemoeh.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=6VujxD91yRAdF0Y3Hyq4UHIlnIetUm2ZcfJJ7QcfF6g=";
+        private static string FILE_URL = "https://opendemost.file.core.windows.net/";
 
         public static void sendFaceDetectedEvent(Face face, string path)
         {
             Random rand = new Random();
-            var eventHubClient = EventHubClient.CreateFromConnectionString(connectionString, eventHubName);
+            var eventHubClient = EventHubClient.CreateFromConnectionString(CONNECTION_STRING, EVENT_HUB);
 
             var dict = new Dictionary<string, string>();
             dict.Add("id", face.FaceId.ToString());
@@ -105,7 +106,7 @@ namespace Utils
             dict.Add("glasses", face.FaceAttributes.Glasses.ToString());
             dict.Add("avgs", rand.Next(5, 8).ToString());
             dict.Add("avgrank", (3 + rand.NextDouble() * 1.5).ToString());
-            dict.Add("path", path);
+            dict.Add("path", FILE_URL + path.Replace(Path.GetPathRoot(path), ""));
 
             string json = JsonConvert.SerializeObject(dict, Formatting.Indented);
             eventHubClient.Send(new EventData(Encoding.UTF8.GetBytes(json)));
