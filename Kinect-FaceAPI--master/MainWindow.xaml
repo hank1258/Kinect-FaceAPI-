@@ -109,9 +109,14 @@
                    Visibility="Collapsed"  
                    Stretch="UniformToFill" />
     </Viewbox>
+    <Viewbox Grid.Row="1" HorizontalAlignment="Center">
+        <Image x:Name="Figure_Screen" 
+                Visibility="Collapsed"  
+                Stretch="UniformToFill" />
+    </Viewbox>
 
-        <Button x:Name="check_button" Visibility="Collapsed" Grid.Row ="2" Style="{StaticResource CheckButton}" Content="  Yes"  Height="100"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="510 20 0 45" Click="CheckButton_Click" />
-        <Button x:Name="retry_button" Visibility="Collapsed" Grid.Row ="2" Style="{StaticResource RetryButton}" Content="  Retry"  Height="100"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 20 450 50" Click="RetryButton_Click" />
+        <Button x:Name="check_button" Visibility="Collapsed" Grid.Row ="2" Style="{StaticResource CheckButton}" Content="  Yes"  Height="100"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="510 20 0 20" Click="CheckButton_Click" />
+        <Button x:Name="retry_button" Visibility="Collapsed" Grid.Row ="2" Style="{StaticResource RetryButton}" Content="  Retry"  Height="100"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 20 450 20" Click="RetryButton_Click" />
 
         <Button x:Name="shot_button" Grid.Row ="2" Style="{StaticResource ScreenshotButton}" Content=""  Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="15 10 0 5" Click="ScreenshotButton_Click" />
         <Image  x:Name="wave_lhandes"   Visibility="Collapsed" Source="Images/lhands.png" Grid.Row ="2"    Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 200 0" />
@@ -126,6 +131,35 @@
         <Image  x:Name="image_three" Visibility="Collapsed"  Height="300" Width="300"  Source="Images/three.png" Grid.Row ="1"      HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 0" />
         <Image  x:Name="image_two" Visibility="Collapsed" Height="300" Width="300"  Source="Images/two.png" Grid.Row ="1"      HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 0" />
         <Image  x:Name="image_one" Visibility="Collapsed"  Height="300" Width="300"  Source="Images/one.png" Grid.Row ="1"      HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 0" />
+        <Button x:Name="left_button" Click="LeftButton_Click" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Row="1" Background="Transparent" BorderBrush="Transparent" Visibility="Collapsed">
+            <Canvas  Height="100" Width="60">
+                <Line
+                X1="30" Y1="0"
+                X2="0" Y2="50"
+                StrokeThickness="4"
+                Stroke="LightGreen"/>
+                <Line
+                    X1="0" Y1="50"
+                    X2="30" Y2="100"
+                    StrokeThickness="4"
+                  Stroke="LightGreen"/>
+            </Canvas>
+        </Button>
+        <Button x:Name="right_button" Click="RightButton_Click" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="1" Background="Transparent" BorderBrush="Transparent" Visibility="Collapsed" >
+            <Canvas  Height="100" Width="60"  >
+                <Line
+                X1="30" Y1="0"
+                X2="60" Y2="50"
+                StrokeThickness="4"
+                Stroke="LightGreen"/>
+                <Line
+                    X1="60" Y1="50"
+                    X2="30" Y2="100"
+                    StrokeThickness="4"
+                  Stroke="LightGreen"/>
+            </Canvas>
+        </Button>
+
         <Canvas x:Name="qrcode_frame"  Visibility="Collapsed" Height="300" Width="300" Grid.Row ="1" >
             <Line
                 X1="10" Y1="8"
