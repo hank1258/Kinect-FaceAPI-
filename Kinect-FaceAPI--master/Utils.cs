@@ -214,8 +214,13 @@ namespace Utils
 
         public static void sendFaceDetectedEvent(Face face, string path)
         {
-            var fileName = path.Replace(Path.GetPathRoot(path), "");
-            fileName.Replace("\\", "/");
+            string fileName;
+            if (Path.GetPathRoot(path) != null && Path.GetPathRoot(path) != "")
+                fileName = path.Replace(Path.GetPathRoot(path), "").Replace("\\", "/");
+            else
+                fileName = path.Replace("\\", "/");
+            
+            System.Console.WriteLine("fileName:" + fileName);
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(BLOB_CONNECTION_STRING);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("photo");

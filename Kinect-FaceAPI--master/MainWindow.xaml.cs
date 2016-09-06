@@ -550,8 +550,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             saveFinalImg(imgno);
 
             BackGround_Screen.Visibility = Visibility.Collapsed;
+            using (Graphics G = Graphics.FromImage(figureBitmap)) G.Clear(System.Drawing.Color.Transparent);
+            Figure_Screen.Source = Utils.Bitmap2BitmapImage(figureBitmap);
             Figure_Screen.Visibility = Visibility.Collapsed;
-            figureBitmap = new Bitmap(figureBitmap.Width, figureBitmap.Height);
             check_button.Visibility = Visibility.Collapsed;
             retry_button.Visibility = Visibility.Collapsed;
             DefaultScreen.Visibility = Visibility.Visible;
@@ -774,16 +775,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     faceimg_width[facecount] = width;
                     faceimg_height[facecount] = height;
 
-                    Mount_path.Clear();
-                    Mount_path.Append("Y:\\MTC\\Face\\");
-                    Mount_path.Append("face_");
-                    Mount_path.Append(HeadRandom[0]);
-                    Mount_path.Append("_");
-                    Mount_path.Append(facecount.ToString());
-                    Mount_path.Append(".png");
 
                     StringBuilder st = new StringBuilder();
-                    st.Append("faceimg");
+                    st.Append("MTC\\faceimg");
                     // st.Append(facecount.ToString());
                     st.Append(split_filestrs[0]);
                     Facename_Pool.Add(facecount, split_filestrs[0]);
@@ -803,23 +797,40 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         }
 
                     }
-                    using (MemoryStream memory = new MemoryStream())
-                    {
-                        using (FileStream fs = new FileStream(Mount_path.ToString(), FileMode.Create, FileAccess.ReadWrite))
-                        {
-                            CroppedImage.Save(memory, ImageFormat.Png);
-                            byte[] bytes = memory.ToArray();
-                            fs.Write(bytes, 0, bytes.Length);
-                            fs.Flush();
-                            fs.Close();
-                            memory.Flush();
-                            memory.Close();
-                        }
 
+                    if (Constants.SAVE_TO_CLOUD_DRIVE) {
+                        Mount_path.Clear();
+                        Mount_path.Append("Y:\\MTC\\Face\\");
+                        Mount_path.Append("face_");
+                        Mount_path.Append(HeadRandom[0]);
+                        Mount_path.Append("_");
+                        Mount_path.Append(facecount.ToString());
+                        Mount_path.Append(".png");
+                        using (MemoryStream memory = new MemoryStream())
+                        {
+                            using (FileStream fs = new FileStream(Mount_path.ToString(), FileMode.Create, FileAccess.ReadWrite))
+                            {
+                                CroppedImage.Save(memory, ImageFormat.Png);
+                                byte[] bytes = memory.ToArray();
+                                fs.Write(bytes, 0, bytes.Length);
+                                fs.Flush();
+                                fs.Close();
+                                memory.Flush();
+                                memory.Close();
+                            }
+
+                        }
                     }
                     CroppedImage.Dispose();
 
-                    
+                    if (Constants.STREAM_ANALYSTIC)
+                    {
+                        if(Constants.SAVE_TO_CLOUD_DRIVE)
+                            Utils.sendFaceDetectedEvent(face, Mount_path.ToString());
+                        else
+                            Utils.sendFaceDetectedEvent(face, outputFileName); 
+                    }
+
 
                     if (face.FaceAttributes.Gender.Equals("male"))
                     {
@@ -884,7 +895,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                                  GraphicsUnit.Pixel);
 
                                 StringBuilder st = new StringBuilder();
-                                st.Append("faceimg");
+                                st.Append("MTC\\faceimg");
                                 st.Append(Facename_Pool[j]);
                                 st.Append(".png");
 
@@ -897,8 +908,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 }
                                 else if (body_img_path.ToString().Equals("man_young.png"))
                                 {
-                                    bx = 823;
-                                    by = 535;
+                                    bx = 890;
+                                    by = 545;
                                 }
                                 else if (body_img_path.ToString().Equals("woman_mature.png"))
                                 {
@@ -912,6 +923,21 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 }
 
                                 canvas.DrawImage(body_face, bx, by, 340, 340);
+
+                                body_img_path.Replace(".png","_hat.png");
+                                Image hatImg = Image.FromFile(body_img_path.ToString());
+                                canvas.DrawImage(hatImg,
+                                                new System.Drawing.Rectangle(0,
+                                                              0,
+                                                              body_frame.Width,
+                                                              body_frame.Height),
+                                                new System.Drawing.Rectangle(0,
+                                                              0,
+                                                              body_frame.Width,
+                                                              body_frame.Height),
+                                                GraphicsUnit.Pixel);
+
+
                                 canvas.Save();
                             }
                             try
