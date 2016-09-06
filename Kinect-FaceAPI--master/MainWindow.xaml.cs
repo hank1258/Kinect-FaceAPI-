@@ -84,6 +84,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         Dictionary<string, Account> accounts = new Dictionary<string, Account>();
         Bitmap Final_Bitmap;
 
+        StringBuilder Mount_path = new StringBuilder();
+
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -346,29 +348,46 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
             System.Console.WriteLine("result:" + result);
             if (result != null)
-            {
+            {  
                 // Create folder
-                // Create folder
-                StringBuilder Mount_path = new StringBuilder();
-                Mount_path.Append("Y://MTC//");
-                Mount_path.Append(Account.getAmById(result.ToString()));
-                System.IO.Directory.CreateDirectory(Mount_path.ToString());
-                Mount_path.Append("//photo_");
-                Mount_path.Append(Account.getNameById(result.ToString()));
-                Mount_path.Append(".jpg");
+                StringBuilder destFileName = new StringBuilder();
+                StringBuilder srcFileName = new StringBuilder();
 
-                StringBuilder st2 = new StringBuilder();
-                st2.Append("Y:\\MTC\\");
-                st2.Append("MTC_");
-                st2.Append(Facename_Pool[1]);
-                st2.Append(".jpg");
+                if (Constants.SAVE_TO_CLOUD_DRIVE)
+                {
+                    destFileName.Append("Y:\\MTC\\");
+                    destFileName.Append(Account.getAmById(result.ToString()));
+                    System.IO.Directory.CreateDirectory(destFileName.ToString());
+                    destFileName.Append("\\photo_");
+                    destFileName.Append(Account.getNameById(result.ToString()));
+                    destFileName.Append(".jpg");
 
-                Thread myNewThread = new Thread(() => Utils.saveBitmap(st2.ToString(), Mount_path.ToString()));
+                    srcFileName.Append("Y:\\MTC\\");
+                    srcFileName.Append("MTC_");
+                    srcFileName.Append(Facename_Pool[1]);
+                    srcFileName.Append(".jpg");
+                }
+                else
+                {
+                    destFileName.Append("MTC\\");
+                    destFileName.Append(Account.getAmById(result.ToString()));
+                    System.IO.Directory.CreateDirectory(destFileName.ToString());
+                    destFileName.Append("\\photo_");
+                    destFileName.Append(Account.getNameById(result.ToString()));
+                    destFileName.Append(".jpg");
+
+
+                    srcFileName.Append("MTC\\");
+                    srcFileName.Append("MTC_");
+                    srcFileName.Append(Facename_Pool[1]);
+                    srcFileName.Append(".jpg");
+                }
+
+                Thread myNewThread = new Thread(() => Utils.saveBitmap(srcFileName.ToString(), destFileName.ToString()));
                 myNewThread.Start();
 
                 timer.Stop();
                 Mode_State = State.Default;
-
                 qr_text.Visibility = Visibility.Collapsed;
                 BackGround_Screen.Source = bg_pool[1];
                 BackGround_Screen.Visibility = Visibility.Collapsed;
@@ -532,6 +551,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
             BackGround_Screen.Visibility = Visibility.Collapsed;
             Figure_Screen.Visibility = Visibility.Collapsed;
+            figureBitmap = new Bitmap(figureBitmap.Width, figureBitmap.Height);
             check_button.Visibility = Visibility.Collapsed;
             retry_button.Visibility = Visibility.Collapsed;
             DefaultScreen.Visibility = Visibility.Visible;
@@ -630,17 +650,21 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             }
 
             HeadRandom = System.IO.Path.GetRandomFileName().Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
-            StringBuilder Mount_path = new StringBuilder();
-            Mount_path.Append("Y://MTC//Original//");
-            Mount_path.Append("Original_");
-            Mount_path.Append(HeadRandom[0]);
-            Mount_path.Append(".jpg");
-
+                        
             Bitmap oribmp = new Bitmap(path);
             using (Bitmap tmpBmp = new Bitmap(oribmp))
             {
                 tmpBmp.Save("back.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
-                tmpBmp.Save(Mount_path.ToString(), System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                if (Constants.SAVE_TO_CLOUD_DRIVE)
+                {
+                    Mount_path.Clear();
+                    Mount_path.Append("Y:\\MTC\\Original\\");
+                    Mount_path.Append("Original_");
+                    Mount_path.Append(HeadRandom[0]);
+                    Mount_path.Append(".jpg");
+                    tmpBmp.Save(Mount_path.ToString(), System.Drawing.Imaging.ImageFormat.Jpeg);
+                } 
             }
 
             view_mode = 1;
@@ -734,131 +758,68 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                     string[] split_filestrs = randomName.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
 
+
+                    Bitmap CroppedImage = null;
                     if (face.FaceAttributes.HeadPose.Roll >= 10 || face.FaceAttributes.HeadPose.Roll <= -10)
                     {
                         System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Convert.ToInt32(x), Convert.ToInt32(y), width, height);
-
-                        Bitmap CroppedImage = new Bitmap(CropRotatedRect(oribmp, rect, Convert.ToSingle(face.FaceAttributes.HeadPose.Roll * -1), true));
-
-                        faceimg_x[facecount] = Convert.ToInt32(x);
-                        faceimg_y[facecount] = Convert.ToInt32(y);
-                        faceimg_width[facecount] = width;
-                        faceimg_height[facecount] = height;
-
-                        Mount_path.Length = 0;
-                        Mount_path.Append("Y://MTC//Face//");
-                        Mount_path.Append("face_");
-                        Mount_path.Append(HeadRandom[0]);
-                        Mount_path.Append("_");
-                        Mount_path.Append(facecount.ToString());
-                        Mount_path.Append(".png");
-
-                        StringBuilder st = new StringBuilder();
-                        st.Append("faceimg");
-                        // st.Append(facecount.ToString());
-                        st.Append(split_filestrs[0]);
-                        Facename_Pool.Add(facecount, split_filestrs[0]);
-                        st.Append(".png");
-                        string outputFileName = st.ToString();
-                        using (MemoryStream memory = new MemoryStream())
-                        {
-                            using (FileStream fs = new FileStream(outputFileName, FileMode.Create, FileAccess.ReadWrite))
-                            {
-                                CroppedImage.Save(memory, ImageFormat.Png);
-                                byte[] bytes = memory.ToArray();
-                                fs.Write(bytes, 0, bytes.Length);
-                                fs.Flush();
-                                fs.Close();
-                                memory.Flush();
-                                memory.Close();
-                            }
-
-                        }
-                        using (MemoryStream memory = new MemoryStream())
-                        {
-                            using (FileStream fs = new FileStream(Mount_path.ToString(), FileMode.Create, FileAccess.ReadWrite))
-                            {
-                                CroppedImage.Save(memory, ImageFormat.Png);
-                                byte[] bytes = memory.ToArray();
-                                fs.Write(bytes, 0, bytes.Length);
-                                fs.Flush();
-                                fs.Close();
-                                memory.Flush();
-                                memory.Close();
-                            }
-
-                        }
-                        CroppedImage.Dispose();
+                        CroppedImage = new Bitmap(CropRotatedRect(oribmp, rect, Convert.ToSingle(face.FaceAttributes.HeadPose.Roll * -1), true));
                     }
                     else
                     {
-                        // using (Bitmap CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(Convert.ToInt32(x), Convert.ToInt32(y), width, height), oribmp.PixelFormat)))
-                        using (Bitmap CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(Convert.ToInt32(face.FaceRectangle.Left), Convert.ToInt32(face.FaceRectangle.Top), face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat)))
-                        {
-                            faceimg_x[facecount] = Convert.ToInt32(x);
-                            faceimg_y[facecount] = Convert.ToInt32(y);
-                            faceimg_width[facecount] = width;
-                            faceimg_height[facecount] = height;
-
-                            Mount_path.Length = 0;
-                            Mount_path.Append("Y://MTC//Face//");
-                            Mount_path.Append("face_");
-                            Mount_path.Append(HeadRandom[0]);
-                            Mount_path.Append("_");
-                            Mount_path.Append(facecount.ToString());
-                            Mount_path.Append(".png");
-
-
-                            
-                            if (Constants.WHITE_BOARDING)
-                            {
-                                using (Graphics g = Graphics.FromImage(CroppedImage))
-                                {
-                                    g.DrawRectangle(new System.Drawing.Pen(System.Drawing.Brushes.White, 10), new Rectangle(0, 0, CroppedImage.Width, CroppedImage.Height));
-                                }
-                            }
-
-                            StringBuilder st = new StringBuilder();
-                            st.Append("faceimg");
-                            st.Append(split_filestrs[0]);
-                            Facename_Pool.Add(facecount, split_filestrs[0]);
-                            st.Append(".png");
-                            string outputFileName = st.ToString();
-                            using (MemoryStream memory = new MemoryStream())
-                            {
-                                using (FileStream fs = new FileStream(outputFileName, FileMode.Create, FileAccess.ReadWrite))
-                                {
-                                    CroppedImage.Save(memory, ImageFormat.Png);
-                                    byte[] bytes = memory.ToArray();
-                                    fs.Write(bytes, 0, bytes.Length);
-                                    fs.Flush();
-                                    fs.Close();
-                                    memory.Flush();
-                                    memory.Close();
-                                }
-                            }
-                            using (MemoryStream memory = new MemoryStream())
-                            {
-                                using (FileStream fs = new FileStream(Mount_path.ToString(), FileMode.Create, FileAccess.ReadWrite))
-                                {
-                                    CroppedImage.Save(memory, ImageFormat.Png);
-                                    byte[] bytes = memory.ToArray();
-                                    fs.Write(bytes, 0, bytes.Length);
-                                    fs.Flush();
-                                    fs.Close();
-                                    memory.Flush();
-                                    memory.Close();
-                                }
-
-                            }
-                            CroppedImage.Dispose();
-
-                            if (Constants.STREAM_ANALYSTIC)
-                            {
-                                Utils.sendFaceDetectedEvent(face, Mount_path.ToString());
-                            }
-                        }
+                        CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(Convert.ToInt32(face.FaceRectangle.Left), Convert.ToInt32(face.FaceRectangle.Top), face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat));
                     }
+                    faceimg_x[facecount] = Convert.ToInt32(x);
+                    faceimg_y[facecount] = Convert.ToInt32(y);
+                    faceimg_width[facecount] = width;
+                    faceimg_height[facecount] = height;
+
+                    Mount_path.Clear();
+                    Mount_path.Append("Y:\\MTC\\Face\\");
+                    Mount_path.Append("face_");
+                    Mount_path.Append(HeadRandom[0]);
+                    Mount_path.Append("_");
+                    Mount_path.Append(facecount.ToString());
+                    Mount_path.Append(".png");
+
+                    StringBuilder st = new StringBuilder();
+                    st.Append("faceimg");
+                    // st.Append(facecount.ToString());
+                    st.Append(split_filestrs[0]);
+                    Facename_Pool.Add(facecount, split_filestrs[0]);
+                    st.Append(".png");
+                    string outputFileName = st.ToString();
+                    using (MemoryStream memory = new MemoryStream())
+                    {
+                        using (FileStream fs = new FileStream(outputFileName, FileMode.Create, FileAccess.ReadWrite))
+                        {
+                            CroppedImage.Save(memory, ImageFormat.Png);
+                            byte[] bytes = memory.ToArray();
+                            fs.Write(bytes, 0, bytes.Length);
+                            fs.Flush();
+                            fs.Close();
+                            memory.Flush();
+                            memory.Close();
+                        }
+
+                    }
+                    using (MemoryStream memory = new MemoryStream())
+                    {
+                        using (FileStream fs = new FileStream(Mount_path.ToString(), FileMode.Create, FileAccess.ReadWrite))
+                        {
+                            CroppedImage.Save(memory, ImageFormat.Png);
+                            byte[] bytes = memory.ToArray();
+                            fs.Write(bytes, 0, bytes.Length);
+                            fs.Flush();
+                            fs.Close();
+                            memory.Flush();
+                            memory.Close();
+                        }
+
+                    }
+                    CroppedImage.Dispose();
+
+                    
 
                     if (face.FaceAttributes.Gender.Equals("male"))
                     {
@@ -868,7 +829,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     {
                         faceimg_gender[facecount] = 2;
                     }
-
                     faceimg_age[facecount] = Convert.ToInt32(face.FaceAttributes.Age);
 
 
@@ -1192,24 +1152,26 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     }
                     try
                     {
-                        String Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                        String fi_path = System.IO.Path.Combine(Fi_Photos, "MTC_" + Facename_Pool[1] + ".jpg");
+                        String resultPath = "MTC\\MTC_" + Facename_Pool[1] + ".jpg";
                         using (Bitmap tempBitmap = new Bitmap(bitmap))
                         {
                             Final_Bitmap = tempBitmap;
-                            tempBitmap.Save(fi_path, System.Drawing.Imaging.ImageFormat.Jpeg);
+                            tempBitmap.Save(resultPath, System.Drawing.Imaging.ImageFormat.Jpeg);
                         }
 
-                        StringBuilder st = new StringBuilder();
-                        st.Append("Y:\\MTC\\");
-                        st.Append("MTC_");
-                        st.Append(Facename_Pool[1]);
-                        st.Append(".jpg");
+                        if (Constants.SAVE_TO_CLOUD_DRIVE)
+                        {
+                            StringBuilder st = new StringBuilder();
+                            st.Append("Y:\\MTC\\");
+                            st.Append("MTC_");
+                            st.Append(Facename_Pool[1]);
+                            st.Append(".jpg");
     
-                        Thread myNewThread = new Thread(() => Utils.saveBitmap(fi_path, st.ToString()));
-                        myNewThread.Start();
+                            Thread myNewThread = new Thread(() => Utils.saveBitmap(resultPath, st.ToString()));
+                            myNewThread.Start();
+                        }
+                       
 
-                    
                         Mode_State = State.Result;
                         BackGround_Screen.Source = Utils.Bitmap2BitmapImage(bitmap);
                         hand_text.Visibility = Visibility.Collapsed;

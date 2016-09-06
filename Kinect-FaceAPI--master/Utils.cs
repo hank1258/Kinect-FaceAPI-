@@ -22,9 +22,11 @@ namespace Utils
 {
     static public class Constants
     {
-        public const int QRIMG_SIZE = 800;
         public const bool STREAM_ANALYSTIC = true;
         public const bool WHITE_BOARDING = false;
+        public const bool SAVE_TO_CLOUD_DRIVE = false;
+
+        public const int QRIMG_SIZE = 800;
         public const int MAX_BG_NUM = 13;
         public const int MAX_FACE_NUM = 4;
         enum Types { Male_Young, Male_Old, Female_Young, Female_Old };
@@ -241,10 +243,16 @@ namespace Utils
             eventHubClient.Send(new EventData(Encoding.UTF8.GetBytes(json)));
         }
 
+        public static void saveBitmap(Bitmap bitmap, string filename)
+        {
+            using (Bitmap tmpBmp = new Bitmap(bitmap))
+            {
+                tmpBmp.Save(filename, System.Drawing.Imaging.ImageFormat.Jpeg);
+            }
+        }
 
         public static void saveBitmap(string param1, string param2)
         {
-            //do stuff
             using (Bitmap tmpBmp = new Bitmap(param1))
             {
                 tmpBmp.Save(param2, System.Drawing.Imaging.ImageFormat.Jpeg);
