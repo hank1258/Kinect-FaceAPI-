@@ -362,7 +362,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     destFileName.Append(Account.getNameById(result.ToString()));
                     destFileName.Append(".jpg");
 
-                    srcFileName.Append("Y:\\MTC\\");
+                    srcFileName.Append("Y:\\MTC\\Result\\");
                     srcFileName.Append("MTC_");
                     srcFileName.Append(Facename_Pool[1]);
                     srcFileName.Append(".jpg");
@@ -377,7 +377,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     destFileName.Append(".jpg");
 
 
-                    srcFileName.Append("MTC\\");
+                    srcFileName.Append("MTC\\Result\\");
                     srcFileName.Append("MTC_");
                     srcFileName.Append(Facename_Pool[1]);
                     srcFileName.Append(".jpg");
@@ -577,6 +577,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             Mode_State = State.Default;
 
             BackGround_Screen.Visibility = Visibility.Collapsed;
+            using (Graphics G = Graphics.FromImage(figureBitmap)) G.Clear(System.Drawing.Color.Transparent);
+            Figure_Screen.Source = Utils.Bitmap2BitmapImage(figureBitmap);
             Figure_Screen.Visibility = Visibility.Collapsed;
             check_button.Visibility = Visibility.Collapsed;
             retry_button.Visibility = Visibility.Collapsed;
@@ -698,9 +700,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 sw.Start();//碼表開始計時
                 var faceserviceclient = new FaceServiceClient("2c2a7f6eca9e4197926721a886786d6b");
 
-                ProjectOxford.Face.Contract.Face[] faces = await faceserviceclient.DetectAsync(faceimagestream, false, true,
-                    new FaceAttributeType[] { FaceAttributeType.Gender, FaceAttributeType.Age, FaceAttributeType.Smile, FaceAttributeType.HeadPose });
-
+                ProjectOxford.Face.Contract.Face[] faces = await faceserviceclient.DetectAsync(faceimagestream, true, true,
+                    new FaceAttributeType[] { FaceAttributeType.Gender, FaceAttributeType.Age, FaceAttributeType.Smile, FaceAttributeType.HeadPose,FaceAttributeType.Glasses });
+                
                 sw.Stop();//碼錶停止
                 string result3 = sw.Elapsed.TotalMilliseconds.ToString();
                 System.Console.WriteLine("face api:" + result3);
@@ -777,7 +779,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
 
                     StringBuilder st = new StringBuilder();
-                    st.Append("MTC\\faceimg");
+                    st.Append("MTC\\Face\\faceimg");
                     // st.Append(facecount.ToString());
                     st.Append(split_filestrs[0]);
                     Facename_Pool.Add(facecount, split_filestrs[0]);
@@ -844,6 +846,12 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
 
                 }
+   
+                if (faces.Length >= Constants.MAX_FACE_NUM)
+                {
+                    facecount = Constants.MAX_FACE_NUM-1;
+                }
+
                 sw.Stop();//碼錶停止
                 string result4 = sw.Elapsed.TotalMilliseconds.ToString();
                 System.Console.WriteLine("cal top & save faceimg :" + result4);
@@ -895,7 +903,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                                  GraphicsUnit.Pixel);
 
                                 StringBuilder st = new StringBuilder();
-                                st.Append("MTC\\faceimg");
+                                st.Append("MTC\\Face\\faceimg");
                                 st.Append(Facename_Pool[j]);
                                 st.Append(".png");
 
@@ -918,8 +926,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 }
                                 else if (body_img_path.ToString().Equals("woman_young.png"))
                                 {
-                                    bx = 721;
-                                    by = 553;
+                                    bx = 781;
+                                    by = 659;
                                 }
 
                                 canvas.DrawImage(body_face, bx, by, 340, 340);
@@ -1178,17 +1186,18 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     }
                     try
                     {
-                        String resultPath = "MTC\\MTC_" + Facename_Pool[1] + ".jpg";
+                        String resultPath = "MTC\\Result\\MTC_" + Facename_Pool[1] + ".jpg";
                         using (Bitmap tempBitmap = new Bitmap(bitmap))
                         {
-                            Final_Bitmap = tempBitmap;
                             tempBitmap.Save(resultPath, System.Drawing.Imaging.ImageFormat.Jpeg);
                         }
+
+                        Utils.sendFinalDetectedEvent(resultPath);
 
                         if (Constants.SAVE_TO_CLOUD_DRIVE)
                         {
                             StringBuilder st = new StringBuilder();
-                            st.Append("Y:\\MTC\\");
+                            st.Append("Y:\\MTC\\Result\\");
                             st.Append("MTC_");
                             st.Append(Facename_Pool[1]);
                             st.Append(".jpg");

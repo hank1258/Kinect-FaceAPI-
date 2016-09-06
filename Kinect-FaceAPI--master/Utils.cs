@@ -24,11 +24,11 @@ namespace Utils
     {
         public const bool STREAM_ANALYSTIC = true;
         public const bool WHITE_BOARDING = false;
-        public const bool SAVE_TO_CLOUD_DRIVE = false;
+        public const bool SAVE_TO_CLOUD_DRIVE = true;
 
         public const int QRIMG_SIZE = 800;
         public const int MAX_BG_NUM = 13;
-        public const int MAX_FACE_NUM = 4;
+        public const int MAX_FACE_NUM = 5;
         enum Types { Male_Young, Male_Old, Female_Young, Female_Old };
         public const int FIGURE_WIDTH = 1858;
         public const int FIGURE_HEIGHT = 2480;
@@ -240,12 +240,34 @@ namespace Utils
             dict.Add("date", DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
             dict.Add("smile", face.FaceAttributes.Smile.ToString());
             dict.Add("glasses", face.FaceAttributes.Glasses.ToString());
+            Console.Write(face.FaceAttributes.Glasses.ToString());
             dict.Add("avgs", rand.Next(5, 8).ToString());
             dict.Add("avgrank", (3 + rand.NextDouble() * 1.5).ToString());
             dict.Add("path", FILE_URL + fileName);
 
             string json = JsonConvert.SerializeObject(dict, Formatting.Indented);
             eventHubClient.Send(new EventData(Encoding.UTF8.GetBytes(json)));
+        }
+
+        public static void sendFinalDetectedEvent(string path)
+        {
+            string fileName;
+            if (Path.GetPathRoot(path) != null && Path.GetPathRoot(path) != "")
+                fileName = path.Replace(Path.GetPathRoot(path), "").Replace("\\", "/");
+            else
+                fileName = path.Replace("\\", "/");
+
+            System.Console.WriteLine("fileName:" + fileName);
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(BLOB_CONNECTION_STRING);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("photo");
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
+            using (var fileStream = System.IO.File.OpenRead(path))
+            {
+                blockBlob.UploadFromStream(fileStream);
+            }
+
+             
         }
 
         public static void saveBitmap(Bitmap bitmap, string filename)
