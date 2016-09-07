@@ -155,7 +155,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             Load_BgImage();
             Account.init();
         }
-
+        private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            ((System.Windows.Controls.MediaElement)sender).Position = ((System.Windows.Controls.MediaElement)sender).Position.Add(TimeSpan.FromMilliseconds(1));
+        }
         private async void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
 
@@ -173,126 +176,132 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             #region gesture detect to switch bg_image
             if (dataReceived)
             {
-                int ZvalueforDistinct = 1000;
-                int bodyIndexForUse = 0;
-                // first person
-                for (int bodyIndex = 0; bodyIndex < this.bodies.Length; bodyIndex++)
+                foreach (Body body in bodies)
                 {
+                    Joint userJoint_HandLeft = body.Joints[JointType.HandLeft];
+                    Joint userJoint_ElbowLeft = body.Joints[JointType.ElbowLeft];
+                    Joint userJoint_HandRight = body.Joints[JointType.HandRight];
+                    Joint userJoint_ElbowRight = body.Joints[JointType.ElbowRight];
+                    Joint userJoint_ShoulderCenter = body.Joints[JointType.SpineShoulder];
+                    Joint userJoint_Spine = body.Joints[JointType.SpineMid];
+                    Joint userJoint_Head = body.Joints[JointType.Head];
 
-                    Body temp_body = this.bodies[bodyIndex];
-                    Joint userJoint_Head = temp_body.Joints[JointType.Head];
-                    int HeadZAxis = (int)(userJoint_Head.Position.Z * 100);
-                    if (ZvalueforDistinct > HeadZAxis && HeadZAxis != 0)
+
+                    /*
+                    int ZvalueforDistinct = 1000;
+                    int bodyIndexForUse = 0;
+                    // first person
+                    for (int bodyIndex = 0; bodyIndex < this.bodies.Length; bodyIndex++)
                     {
-                        ZvalueforDistinct = HeadZAxis;
-                        bodyIndexForUse = bodyIndex;
-                    }
 
-                }
-                Body body = this.bodies[bodyIndexForUse];
+                        Body temp_body = this.bodies[bodyIndex];
+                        Joint userJoint_Head = temp_body.Joints[JointType.Head];
+                        int HeadZAxis = (int)(userJoint_Head.Position.Z * 100);
+                        if (ZvalueforDistinct > HeadZAxis && HeadZAxis != 0)
+                        {
+                            ZvalueforDistinct = HeadZAxis;
+                            bodyIndexForUse = bodyIndex;
+                        }
 
-                string Fi_Photos, fi_path;
-                switch (Mode_State)
-                {
-                    case State.Background:
-                        if (!body.IsTracked)
+                    }*/
+                    //Body body = this.bodies[bodyIndexForUse];
+
+                    string Fi_Photos, fi_path;
+                    
+                    switch (Mode_State)
+                    {
+                        case State.Background:
+                        case State.Result:
+
+                            if (!body.IsTracked)
+                                break;
+                            
+
+                            //雙手合十
+                            if (userJoint_HandRight.Position.X - userJoint_HandLeft.Position.X < 0.01f)
+                            {
+                                //saveFinalImg(imgno);
+                            }
+                            //右手舉起
+                            else if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
+                            {
+                                //右手X位置-右手手肘的位置
+                                float distance = userJoint_HandRight.Position.X - userJoint_ElbowRight.Position.X;
+                                Console.Write("舉右手");
+                                System.Console.WriteLine(distance);
+                                int flag = 0;
+
+                                //FSM dectect gesture
+                                // INPUT : R
+                                if (distance > 0.05f)
+                                {
+                                    if (CurrentState.Equals("D"))
+                                    {
+                                        CurrentState = "1";
+                                    }
+                                    else if (CurrentState.Equals("0"))
+                                    {
+                                        CurrentState = "0";
+                                    }
+                                    else if (CurrentState.Equals("1"))
+                                    {
+                                        CurrentState = "0";
+                                    }
+
+
+                                }// INPUT : L
+                                else if (distance < -0.05f)
+                                {
+                                    if (CurrentState.Equals("D"))
+                                    {
+                                        CurrentState = "0";
+                                    }
+                                    else if (CurrentState.Equals("0"))
+                                    {
+                                        CurrentState = "1";
+                                    }
+                                    else if (CurrentState.Equals("1"))
+                                    {
+                                        CurrentState = "1";
+                                    }
+
+
+                                }
+                                // switch image
+                                if (CurrentState.Equals("0"))
+                                {
+                                    imgno = (imgno + Constants.MAX_BG_NUM - 1) % Constants.MAX_BG_NUM;
+
+                                    Thread.Sleep(200);
+                                    BackGround_Screen.Source = bg_pool[imgno];
+
+                                    CurrentState = "D";
+
+                                }
+                                else if (CurrentState.Equals("1"))
+                                {
+                                    imgno = (imgno + 1) % Constants.MAX_BG_NUM;
+
+                                    Thread.Sleep(200);
+                                    BackGround_Screen.Source = bg_pool[imgno];
+
+                                    CurrentState = "D";
+                                }
+
+                            }//左手舉起
+                            else if (userJoint_HandLeft.Position.Y > userJoint_ElbowLeft.Position.Y)
+                            {
+                            }
+
                             break;
-                        Joint userJoint_HandLeft = body.Joints[JointType.HandLeft];
-                        Joint userJoint_ElbowLeft = body.Joints[JointType.ElbowLeft];
-                        Joint userJoint_HandRight = body.Joints[JointType.HandRight];
-                        Joint userJoint_ElbowRight = body.Joints[JointType.ElbowRight];
-                        Joint userJoint_ShoulderCenter = body.Joints[JointType.SpineShoulder];
-                        Joint userJoint_Spine = body.Joints[JointType.SpineMid];
-                        Joint userJoint_Head = body.Joints[JointType.Head];
 
-                        //雙手合十
-                        if (userJoint_HandRight.Position.X - userJoint_HandLeft.Position.X < 0.01f)
-                        {
-                            saveFinalImg(imgno);
-                        }
-                        //右手舉起
-                        else if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
-                        {
-                            //右手X位置-右手手肘的位置
-                            float distance = userJoint_HandRight.Position.X - userJoint_ElbowRight.Position.X;
-                            Console.Write("舉右手");
-                            System.Console.WriteLine(distance);
-                            int flag = 0;
+                        case State.QRcode:
 
-                            //FSM dectect gesture
-                            // INPUT : R
-                            if (distance > 0.05f)
-                            {
-                                if (CurrentState.Equals("D"))
-                                {
-                                    CurrentState = "1";
-                                }
-                                else if (CurrentState.Equals("0"))
-                                {
-                                    CurrentState = "0";
-                                }
-                                else if (CurrentState.Equals("1"))
-                                {
-                                    CurrentState = "0";
-                                }
+                            break;
 
-
-                            }// INPUT : L
-                            else if (distance < -0.05f)
-                            {
-                                if (CurrentState.Equals("D"))
-                                {
-                                    CurrentState = "0";
-                                }
-                                else if (CurrentState.Equals("0"))
-                                {
-                                    CurrentState = "1";
-                                }
-                                else if (CurrentState.Equals("1"))
-                                {
-                                    CurrentState = "1";
-                                }
-
-
-                            }
-                            // switch image
-                            if (CurrentState.Equals("0"))
-                            {
-                                imgno = (imgno+ Constants.MAX_BG_NUM - 1) % Constants.MAX_BG_NUM;
-                                
-                                Thread.Sleep(200);
-                                BackGround_Screen.Source = bg_pool[imgno];
-
-                                CurrentState = "D";
-
-                            }
-                            else if (CurrentState.Equals("1"))
-                            {
-                                imgno = (imgno + 1) % Constants.MAX_BG_NUM;
-                                
-                                Thread.Sleep(200);
-                                BackGround_Screen.Source = bg_pool[imgno];
-
-                                CurrentState = "D";
-                            }
-
-                        }//左手舉起
-                        else if (userJoint_HandLeft.Position.Y > userJoint_ElbowLeft.Position.Y)
-                        {
-                        }
-
-                        break;
-
-                    case State.Result:
-   
-                     
-                        break;
-                    case State.QRcode:
-                       
-                        break;
-
+                    }
                 }
-
+                
             }
             #endregion
         }
@@ -671,6 +680,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             }
 
             view_mode = 1;
+            loading_animation.Visibility = Visibility.Visible;
             BackGround_Screen.Visibility = Visibility.Visible;
             Figure_Screen.Visibility = Visibility.Visible;
             DefaultScreen.Visibility = Visibility.Collapsed;
@@ -764,11 +774,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
 
                     Bitmap CroppedImage = null;
-                    /*
                     if (face.FaceAttributes.HeadPose.Roll >= 10 || face.FaceAttributes.HeadPose.Roll <= -10)
                     {
-                        System.Console.WriteLine("rotated");
-                        System.Drawing.Rectangle rect = new System.Drawing.Rectangle((int)x, (int)y, width, height);
+                        System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Convert.ToInt32(face.FaceRectangle.Left), Convert.ToInt32(face.FaceRectangle.Top), face.FaceRectangle.Width, face.FaceRectangle.Height);
+
                         CroppedImage = new Bitmap(CropRotatedRect(oribmp, rect, Convert.ToSingle(face.FaceAttributes.HeadPose.Roll * -1), true));
                     }
                     else
@@ -776,7 +785,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(face.FaceRectangle.Left, face.FaceRectangle.Top, face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat));
 
                     }
-                    */
+                    
                     CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(face.FaceRectangle.Left, face.FaceRectangle.Top, face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat));
 
 
@@ -862,29 +871,34 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 //body+face
                 for (int j = 1; j <= facecount; j++)
                 {
-                    StringBuilder body_img_path = new StringBuilder();
+                    Figure_Types currentFigure = 0;
                     if (faceimg_gender[j] == 1)
                     {
-                        body_img_path.Append("man_");
+                        if (faceimg_age[j] <= 35)
+                        {
+                            currentFigure = Figure_Types.Male_Young;
+                        }
+                        else
+                        {
+                            currentFigure = Figure_Types.Male_Old;
+                        }
                     }
-                    else if (faceimg_gender[j] == 2)
+                    else
                     {
-                        body_img_path.Append("woman_");
+                        if (faceimg_age[j] <= 35)
+                        {
+                            currentFigure = Figure_Types.Female_Young;
+                        }
+                        else
+                        {
+                            currentFigure = Figure_Types.Female_Old;
+                        }
                     }
 
-                    if (faceimg_age[j] <= 35)
-                    {
-                        body_img_path.Append("young");
-                    }
-                    else if (faceimg_age[j] > 35)
-                    {
-                        body_img_path.Append("mature");
-                    }
-                    body_img_path.Append(".png");
-
+                    string body_img_path = Constants.BODY_IMG_PATH[(int)currentFigure];
                     Image body_face;
-                    Image body_frame = Image.FromFile(body_img_path.ToString());
-                    using (body_frame)
+
+                    using (Image body_frame = Image.FromFile(body_img_path.ToString()))
                     {
                         using (var bitmap = new Bitmap(body_frame.Width, body_frame.Height))
                         {
@@ -908,55 +922,34 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 st.Append(".png");
 
                                 body_face = Image.FromFile(st.ToString());
-                                int bx = 0, by = 0;
-                                if (body_img_path.ToString().Equals("man_mature.png"))
-                                {
-                                    bx = 742;
-                                    by = 656;
-                                }
-                                else if (body_img_path.ToString().Equals("man_young.png"))
-                                {
-                                    bx = 707;
-                                    by = 525;
-                                }
-                                else if (body_img_path.ToString().Equals("woman_mature.png"))
-                                {
-                                    bx = 677;
-                                    by = 648;
-                                }
-                                else if (body_img_path.ToString().Equals("woman_young.png"))
-                                {
-                                    bx = 781;
-                                    by = 659;
-                                }
+                                int faceX = Constants.FIGURE_FACE_OFFSET[(int)currentFigure].X;
+                                int faceY = Constants.FIGURE_FACE_OFFSET[(int)currentFigure].Y;
+                                int faceWidth = Constants.FIGURE_FACE_SIZE[(int)currentFigure].X;
+                                int faceHeight = Constants.FIGURE_FACE_SIZE[(int)currentFigure].Y;
 
-                                if(faces[j-1].FaceAttributes.HeadPose.Yaw > 0)//looking right
+                                if (faces[j - 1].FaceAttributes.HeadPose.Yaw > 0)//looking right
                                 {
                                     body_face.RotateFlip(RotateFlipType.Rotate180FlipY);
                                 }
 
-                                canvas.DrawImage(body_face, bx, by, 340, 340);
-
-                                if (body_img_path.ToString().Equals("man_young.png") || body_img_path.ToString().Equals("woman_young.png"))
-                                {
-                                    body_img_path.Replace(".png", "_hat.png");
-                                    Image hatImg = Image.FromFile(body_img_path.ToString());
-                                    canvas.DrawImage(hatImg,
-                                                    new System.Drawing.Rectangle(0,
-                                                                  0,
-                                                                  body_frame.Width,
-                                                                  body_frame.Height),
-                                                    new System.Drawing.Rectangle(0,
-                                                                  0,
-                                                                  body_frame.Width,
-                                                                  body_frame.Height),
-                                                    GraphicsUnit.Pixel);
-                                }
-   
+                                canvas.DrawImage(body_face, faceX, faceY, faceWidth, faceHeight);
+                                
+                                string hat_img_path = body_img_path.Replace(".png", "_hat.png");
+                                Image hatImg = Image.FromFile(hat_img_path.ToString());
+                                canvas.DrawImage(hatImg,
+                                                new System.Drawing.Rectangle(0,
+                                                                0,
+                                                                body_frame.Width,
+                                                                body_frame.Height),
+                                                new System.Drawing.Rectangle(0,
+                                                                0,
+                                                                body_frame.Width,
+                                                                body_frame.Height),
+                                                GraphicsUnit.Pixel);
                                 canvas.Save();
                             }
 
-                            if (faces[j-1].FaceAttributes.HeadPose.Yaw > 0)//looking right
+                            if (faces[j - 1].FaceAttributes.HeadPose.Yaw > 0)//looking right
                             {
                                 bitmap.RotateFlip(RotateFlipType.Rotate180FlipY);
                             }
@@ -1004,6 +997,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         }
 
                         canvas.Save();
+                        loading_animation.Visibility = Visibility.Collapsed;
                         Figure_Screen.Source = Utils.Bitmap2BitmapImage(bitmap);
                         System.Console.WriteLine("finish fig bitmap");
                     }
@@ -1036,8 +1030,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 g.InterpolationMode = HighQuality ? InterpolationMode.HighQualityBicubic : InterpolationMode.Default;
                 using (System.Drawing.Drawing2D.Matrix mat = new System.Drawing.Drawing2D.Matrix())
                 {
-                    //mat.Translate(-rect.Location.X, -rect.Location.Y);
-                    mat.RotateAt(angle, rect.Location);
+                    mat.Translate(-rect.Location.X, -rect.Location.Y);
+                    System.Drawing.Point p = new System.Drawing.Point(rect.Location.X + rect.Width / 2, rect.Location.Y + rect.Height / 2);
+                    mat.RotateAt(angle, p);
                     g.Transform = mat;
                     g.DrawImage(source, new System.Drawing.Point(0, 0));
                 }
@@ -1184,12 +1179,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             String fi_path = System.IO.Path.Combine(Fi_Photos, "Body" + Facename_Pool[i] + ".png");
                             temp_body = Image.FromFile(fi_path);
 
-                            int dx = Constants.POSITION_OFFSET[i - 1].X;// - Constants.FIGURE_OFFSET[0].X;
-                            int dy = Constants.POSITION_OFFSET[i - 1].Y;// - Constants.FIGURE_OFFSET[0].Y;
+                            int dx = Constants.POSITION_OFFSET[i - 1].X;
+                            int dy = Constants.POSITION_OFFSET[i - 1].Y;
                             canvas.DrawImage(temp_body, dx, dy, Constants.FIGURE_WIDTH * Constants.resizeRatio, Constants.FIGURE_HEIGHT * Constants.resizeRatio);
-
                         }
-
                         canvas.Save();
 
                     }
