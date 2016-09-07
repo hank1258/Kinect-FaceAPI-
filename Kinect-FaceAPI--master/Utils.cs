@@ -51,7 +51,7 @@ namespace Utils
         {
             new Point(704, 521),
             new Point(740, 530),
-            new Point(794, 672),
+            new Point(781, 672),
             new Point(800, 430)
         };
 
@@ -59,7 +59,7 @@ namespace Utils
         {
             new Point(340,367),
             new Point(333,360),
-            new Point(335,366),
+            new Point(343,350),
             new Point(355,370)
         };
 
