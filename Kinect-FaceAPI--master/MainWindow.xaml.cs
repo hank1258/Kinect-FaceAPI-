@@ -777,7 +777,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     Bitmap CroppedImage = null;
                     if (face.FaceAttributes.HeadPose.Roll >= 10 || face.FaceAttributes.HeadPose.Roll <= -10)
                     {
-                        System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Convert.ToInt32(x), Convert.ToInt32(y), width, height);
+                        System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Convert.ToInt32(face.FaceRectangle.Left), Convert.ToInt32(face.FaceRectangle.Top), face.FaceRectangle.Width, face.FaceRectangle.Height);
                         CroppedImage = new Bitmap(CropRotatedRect(oribmp, rect, Convert.ToSingle(face.FaceAttributes.HeadPose.Roll * -1), true));
                     }
                     else
@@ -1038,7 +1038,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 using (System.Drawing.Drawing2D.Matrix mat = new System.Drawing.Drawing2D.Matrix())
                 {
                     mat.Translate(-rect.Location.X, -rect.Location.Y);
-                    mat.RotateAt(angle, rect.Location);
+                    System.Drawing.Point p = new System.Drawing.Point(rect.Location.X + rect.Width / 2, rect.Location.Y + rect.Height / 2);
+                    mat.RotateAt(angle, p);
                     g.Transform = mat;
                     g.DrawImage(source, new System.Drawing.Point(0, 0));
                 }
