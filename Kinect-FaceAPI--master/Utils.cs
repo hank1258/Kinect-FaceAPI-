@@ -24,11 +24,11 @@ namespace Utils
     {
         public const bool STREAM_ANALYSTIC = true;
         public const bool WHITE_BOARDING = false;
-        public const bool SAVE_TO_CLOUD_DRIVE = true;
+        public const bool SAVE_TO_CLOUD_DRIVE = false;
 
         public const int QRIMG_SIZE = 800;
         public const int MAX_BG_NUM = 13;
-        public const int MAX_FACE_NUM = 5;
+        public const int MAX_FACE_NUM = 4;
         enum Types { Male_Young, Male_Old, Female_Young, Female_Old };
         public const int FIGURE_WIDTH = 1858;
         public const int FIGURE_HEIGHT = 2480;
@@ -36,7 +36,6 @@ namespace Utils
         public const float resizeRatio = 0.3f;
         public const int BG_WIDTH = 1280;
         public const int BG_HEIGHT = 720;
-
 
         public const string filename = "account.csv";
 
@@ -240,7 +239,6 @@ namespace Utils
             dict.Add("date", DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
             dict.Add("smile", face.FaceAttributes.Smile.ToString());
             dict.Add("glasses", face.FaceAttributes.Glasses.ToString());
-            Console.Write(face.FaceAttributes.Glasses.ToString());
             dict.Add("avgs", rand.Next(5, 8).ToString());
             dict.Add("avgrank", (3 + rand.NextDouble() * 1.5).ToString());
             dict.Add("path", FILE_URL + fileName);
@@ -266,8 +264,6 @@ namespace Utils
             {
                 blockBlob.UploadFromStream(fileStream);
             }
-
-             
         }
 
         public static void saveBitmap(Bitmap bitmap, string filename)
