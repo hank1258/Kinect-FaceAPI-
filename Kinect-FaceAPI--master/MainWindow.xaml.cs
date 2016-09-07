@@ -746,6 +746,12 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     return;
                 }
 
+
+                List < ProjectOxford.Face.Contract.Face> faceList = new List<ProjectOxford.Face.Contract.Face>(faces);
+                faceList.Sort((x,y)=>y.FaceRectangle.Width - x.FaceRectangle.Width);
+                faces = faceList.ToArray();
+
+
                 int[] faceimg_x = new int[Constants.MAX_FACE_NUM+10];
                 int[] faceimg_y = new int[Constants.MAX_FACE_NUM+10];
                 int[] faceimg_width = new int[Constants.MAX_FACE_NUM+10];
@@ -808,9 +814,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(face.FaceRectangle.Left, face.FaceRectangle.Top, face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat));
 
                     }
-                    
-                    CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(face.FaceRectangle.Left, face.FaceRectangle.Top, face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat));
-
+                   
 
                     StringBuilder st = new StringBuilder();
                     st.Append("MTC\\Face\\faceimg");
@@ -1008,7 +1012,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     {
                         for (int i = 1; i <= facecount; i++)
                         {
-
                             String Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
                             String fi_path = System.IO.Path.Combine(Fi_Photos, "Body" + Facename_Pool[i] + ".png");
                             Image temp_body = Image.FromFile(fi_path);
