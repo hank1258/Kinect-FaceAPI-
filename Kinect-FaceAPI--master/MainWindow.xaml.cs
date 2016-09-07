@@ -296,9 +296,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                         case State.Result:
 
-                             
-
-
                             break;
                         case State.QRcode:
 
@@ -685,6 +682,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             }
 
             view_mode = 1;
+            loading_animation.Visibility = Visibility.Visible;
             BackGround_Screen.Visibility = Visibility.Visible;
             Figure_Screen.Visibility = Visibility.Visible;
             DefaultScreen.Visibility = Visibility.Collapsed;
@@ -1006,6 +1004,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         }
 
                         canvas.Save();
+                        loading_animation.Visibility = Visibility.Collapsed;
                         Figure_Screen.Source = Utils.Bitmap2BitmapImage(bitmap);
                         System.Console.WriteLine("finish fig bitmap");
                     }
