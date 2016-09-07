@@ -276,6 +276,12 @@
   <ItemGroup>
     <Resource Include="Images\spinner.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\qr.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\qr2.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

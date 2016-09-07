@@ -46,8 +46,8 @@
                             <StackPanel Orientation="Horizontal" Background="Transparent">
                                
                                 <Grid Margin="9,0,0,0">
-                                    <Image x:Name="CheckNormal" Source="Images\check.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center"  />
-                                    <Image x:Name="CheckHover" Source="Images\check.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center" Visibility="Collapsed" />
+                                    <Image x:Name="CheckNormal" Source="Images\qr.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center"  />
+                                    <Image x:Name="CheckHover" Source="Images\qr.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center" Visibility="Collapsed" />
                                 </Grid>
                                 <TextBlock x:Name="CheckText" Text="{TemplateBinding Content}" TextAlignment="Right"  VerticalAlignment="Center" Foreground="{StaticResource KinectPurpleBrush}" FontSize="36" />
                             </StackPanel>
@@ -71,8 +71,8 @@
                             <StackPanel Orientation="Horizontal" Background="Transparent">
 
                                 <Grid Margin="9,0,0,0">
-                                    <Image x:Name="RetryNormal" Source="Images\retry.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center"  />
-                                    <Image x:Name="RetryHover" Source="Images\retry.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center" Visibility="Collapsed" />
+                                    <Image x:Name="RetryNormal" Source="Images\check.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center"  />
+                                    <Image x:Name="RetryHover" Source="Images\check.png" Stretch="UniformToFill" Width="100" HorizontalAlignment="Center" Visibility="Collapsed" />
                                 </Grid>
                                 <TextBlock x:Name="RetryText" Text="{TemplateBinding Content}" TextAlignment="Right"  VerticalAlignment="Center" Foreground="{StaticResource KinectPurpleBrush}" FontSize="36" />
                             </StackPanel>
@@ -116,13 +116,16 @@
                 Stretch="UniformToFill" />
     </Viewbox>
 
-        <Button x:Name="check_button" Visibility="Collapsed" Grid.Row ="2" Style="{StaticResource CheckButton}" Content="  Yes"  Height="100"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="510 20 0 20" Click="CheckButton_Click" />
-        <Button x:Name="retry_button" Visibility="Collapsed" Grid.Row ="2" Style="{StaticResource RetryButton}" Content="  Retry"  Height="100"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 20 450 20" Click="RetryButton_Click" />
+        <Button x:Name="check_button" Visibility="Collapsed" Grid.Row ="2" Style="{StaticResource CheckButton}" Content="  QRcode"  Height="100"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="510 20 0 20" Click="CheckButton_Click" />
+        <Button x:Name="retry_button" Visibility="Collapsed" Grid.Row ="2" Style="{StaticResource RetryButton}" Content="  Okay"  Height="100"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 20 450 20" Click="RetryButton_Click" />
 
-        <Button x:Name="shot_button" Grid.Row ="2" Style="{StaticResource ScreenshotButton}" Content=""  Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="15 10 0 5" Click="ScreenshotButton_Click" />
+        <Button x:Name="shot_button" Grid.Row ="2" Style="{StaticResource ScreenshotButton}" Content=""  Height="75"   HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15 10 0 5" Click="ScreenshotButton_Click" />
+        <Button x:Name="shot_button2" Grid.Row ="2" Style="{StaticResource ScreenshotButton}" Content=""  Height="75"   HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 10 15 5" Click="ScreenshotButton_Click" />
         <Image  x:Name="wave_lhandes"   Visibility="Collapsed" Source="Images/lhands.png" Grid.Row ="2"    Height="75"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 200 0" />
         <TextBlock  x:Name="hand_text"  Visibility="Collapsed" HorizontalAlignment="Center" Grid.Row ="2"  Margin="0 0 -1 0" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="24">  <Run Text="        揮動你的雙手" />  <LineBreak/>
         <Run Text="    選擇你想要的場景" /></TextBlock>
+        <Button x:Name="qrcancel_button" Visibility="Collapsed" Background="Transparent"  BorderThickness="0" Grid.Row ="1"  Content=" "  Height="300" Width="100"  HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 20 0 20" Click="QRcancelButton_Click" />
+        <Button x:Name="qrcancel_button2" Visibility="Collapsed" Background="Transparent"  BorderThickness="0" Grid.Row ="1"  Content=" "  Height="300" Width="100"  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0 20 0 20" Click="QRcancelButton_Click" />
         <StackPanel Grid.Row="2">
              
         <TextBlock  x:Name="qr_text"  Visibility="Collapsed" HorizontalAlignment="Center" Grid.Row ="2" Height="130" Margin="0 20 -1 0" VerticalAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="24">  <Run Text="     請將您的QR Code" />  <LineBreak/>
@@ -160,7 +163,7 @@
                   Stroke="LightGreen"/>
             </Canvas>
         </Button>
-        <Image x:Name="loading_animation" Visibility="Collapsed"  gif:ImageBehavior.AnimatedSource="Images/loading.gif" Height="150" Grid.Row="1"/>
+        <Image x:Name="loading_animation" Visibility="Collapsed"  gif:ImageBehavior.AnimatedSource="Images/loading.gif" gif:ImageBehavior.RepeatBehavior="500x" Height="150" Grid.Row="1"/>
         <Canvas x:Name="qrcode_frame"  Visibility="Collapsed" Height="300" Width="300" Grid.Row ="1" >
             <Line
                 X1="10" Y1="8"

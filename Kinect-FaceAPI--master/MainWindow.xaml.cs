@@ -397,6 +397,8 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                 timer.Stop();
                 Mode_State = State.Default;
+                qrcancel_button.Visibility = Visibility.Collapsed;
+                qrcancel_button2.Visibility = Visibility.Collapsed;
                 qr_text.Visibility = Visibility.Collapsed;
                 BackGround_Screen.Source = bg_pool[1];
                 BackGround_Screen.Visibility = Visibility.Collapsed;
@@ -404,6 +406,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 retry_button.Visibility = Visibility.Collapsed;
                 DefaultScreen.Visibility = Visibility.Visible;
                 shot_button.Visibility = Visibility.Visible;
+                shot_button2.Visibility = Visibility.Visible;
                 qrcode_frame.Visibility = Visibility.Collapsed;
 
                 view_mode = 0;
@@ -554,6 +557,24 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             // this.Title = textBox.Text +
             //"[Length = " + textBox.Text.Length.ToString() + "]";
         }
+        private void QRcancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            timer.Stop();
+            Mode_State = State.Default;
+            qr_text.Visibility = Visibility.Collapsed;
+            BackGround_Screen.Source = bg_pool[1];
+            BackGround_Screen.Visibility = Visibility.Collapsed;
+            check_button.Visibility = Visibility.Collapsed;
+            retry_button.Visibility = Visibility.Collapsed;
+            DefaultScreen.Visibility = Visibility.Visible;
+            shot_button.Visibility = Visibility.Visible;
+            shot_button2.Visibility = Visibility.Visible;
+            qrcode_frame.Visibility = Visibility.Collapsed;
+            qrcancel_button.Visibility = Visibility.Collapsed;
+            qrcancel_button2.Visibility = Visibility.Collapsed;
+
+            view_mode = 0;
+        }
         private void CheckButton_Click(object sender, RoutedEventArgs e)
         {
             saveFinalImg(imgno);
@@ -579,12 +600,15 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
             timer.Tick += Timer_Tick;
             timer.Start();
+            qrcancel_button.Visibility = Visibility.Visible;
+            qrcancel_button2.Visibility = Visibility.Visible;
             Mode_State = State.QRcode;
         }
         private void RetryButton_Click(object sender, RoutedEventArgs e)
         {
+            saveFinalImg(imgno);
             Mode_State = State.Default;
-
+            
             BackGround_Screen.Visibility = Visibility.Collapsed;
             using (Graphics G = Graphics.FromImage(figureBitmap)) G.Clear(System.Drawing.Color.Transparent);
             Figure_Screen.Source = Utils.Bitmap2BitmapImage(figureBitmap);
@@ -593,7 +617,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             retry_button.Visibility = Visibility.Collapsed;
             DefaultScreen.Visibility = Visibility.Visible;
             shot_button.Visibility = Visibility.Visible;
-
+            shot_button2.Visibility = Visibility.Visible;
             left_button.Visibility = Visibility.Collapsed;
             right_button.Visibility = Visibility.Collapsed;
         }
@@ -686,9 +710,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             DefaultScreen.Visibility = Visibility.Collapsed;
 
             shot_button.Visibility = Visibility.Collapsed;
-            //wave_lhandes.Visibility = Visibility.Visible;
-            //wave_rhandes.Visibility = Visibility.Visible;
-            //hand_text.Visibility = Visibility.Visible;
+            shot_button2.Visibility = Visibility.Collapsed;
             check_button.Visibility = Visibility.Visible;
             retry_button.Visibility = Visibility.Visible;
             left_button.Visibility  = Visibility.Visible;
