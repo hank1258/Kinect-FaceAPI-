@@ -211,6 +211,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     switch (Mode_State)
                     {
                         case State.Background:
+                        case State.Result:
 
                             if (!body.IsTracked)
                                 break;
@@ -294,9 +295,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                             break;
 
-                        case State.Result:
-
-                            break;
                         case State.QRcode:
 
                             break;

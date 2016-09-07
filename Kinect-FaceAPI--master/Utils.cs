@@ -17,7 +17,7 @@ using Microsoft.WindowsAzure.Storage.Blob; // Namespace for Blob storage types
 using System.Windows.Media.Imaging;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-
+using Microsoft.Samples.Kinect.ColorBasics;
 namespace Utils
 {
     static public class Constants
@@ -247,6 +247,9 @@ namespace Utils
 
             string json = JsonConvert.SerializeObject(dict, Formatting.Indented);
             eventHubClient.Send(new EventData(Encoding.UTF8.GetBytes(json)));
+           
+
+
         }
 
         public static void sendFinalDetectedEvent(string path)
@@ -257,7 +260,7 @@ namespace Utils
             else
                 fileName = path.Replace("\\", "/");
 
-            System.Console.WriteLine("fileName:" + fileName);
+            System.Console.WriteLine("fileName2:" + fileName);
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(BLOB_CONNECTION_STRING);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("photo");
