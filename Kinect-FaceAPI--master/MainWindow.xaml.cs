@@ -212,7 +212,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     {
                         case State.Background:
                         case State.Result:
-
+                            loading_animation.Visibility = Visibility.Collapsed;
                             if (!body.IsTracked)
                                 break;
                             
@@ -1025,9 +1025,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                         }
 
                         canvas.Save();
-                        loading_animation.Visibility = Visibility.Collapsed;
+                       
                         Figure_Screen.Source = Utils.Bitmap2BitmapImage(bitmap);
                         System.Console.WriteLine("finish fig bitmap");
+                        
                     }
                     
                 }
