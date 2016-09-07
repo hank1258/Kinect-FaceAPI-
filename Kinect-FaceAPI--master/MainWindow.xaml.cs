@@ -220,7 +220,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             //雙手合十
                             if (userJoint_HandRight.Position.X - userJoint_HandLeft.Position.X < 0.01f)
                             {
-                                saveFinalImg(imgno);
+                                //saveFinalImg(imgno);
                             }
                             //右手舉起
                             else if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
@@ -233,7 +233,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                                 //FSM dectect gesture
                                 // INPUT : R
-                                if (distance > 0.05f)
+                                if (distance > 0.02f)
                                 {
                                     if (CurrentState.Equals("D"))
                                     {
@@ -250,7 +250,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
 
                                 }// INPUT : L
-                                else if (distance < -0.05f)
+                                else if (distance < -0.02f)
                                 {
                                     if (CurrentState.Equals("D"))
                                     {
@@ -755,6 +755,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                 sw.Start();
                 facecount = 0;
+               
                 foreach (var face in faces)
                 {
                     facecount++;
