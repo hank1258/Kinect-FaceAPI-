@@ -24,7 +24,7 @@ namespace Utils
     {
         public const bool STREAM_ANALYSTIC = true;
         public const bool WHITE_BOARDING = false;
-        public const bool SAVE_TO_CLOUD_DRIVE = true;
+        public const bool SAVE_TO_CLOUD_DRIVE = false;
 
         public const int QRIMG_SIZE = 800;
         public const int MAX_BG_NUM = 13;

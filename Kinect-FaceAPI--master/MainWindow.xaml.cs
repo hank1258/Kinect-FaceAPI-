@@ -155,7 +155,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             Load_BgImage();
             Account.init();
         }
-
+        private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            ((System.Windows.Controls.MediaElement)sender).Position = ((System.Windows.Controls.MediaElement)sender).Position.Add(TimeSpan.FromMilliseconds(1));
+        }
         private async void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
 
@@ -173,126 +176,137 @@ namespace Microsoft.Samples.Kinect.ColorBasics
             #region gesture detect to switch bg_image
             if (dataReceived)
             {
-                int ZvalueforDistinct = 1000;
-                int bodyIndexForUse = 0;
-                // first person
-                for (int bodyIndex = 0; bodyIndex < this.bodies.Length; bodyIndex++)
+                foreach (Body body in bodies)
                 {
+                    Joint userJoint_HandLeft = body.Joints[JointType.HandLeft];
+                    Joint userJoint_ElbowLeft = body.Joints[JointType.ElbowLeft];
+                    Joint userJoint_HandRight = body.Joints[JointType.HandRight];
+                    Joint userJoint_ElbowRight = body.Joints[JointType.ElbowRight];
+                    Joint userJoint_ShoulderCenter = body.Joints[JointType.SpineShoulder];
+                    Joint userJoint_Spine = body.Joints[JointType.SpineMid];
+                    Joint userJoint_Head = body.Joints[JointType.Head];
 
-                    Body temp_body = this.bodies[bodyIndex];
-                    Joint userJoint_Head = temp_body.Joints[JointType.Head];
-                    int HeadZAxis = (int)(userJoint_Head.Position.Z * 100);
-                    if (ZvalueforDistinct > HeadZAxis && HeadZAxis != 0)
+
+                    /*
+                    int ZvalueforDistinct = 1000;
+                    int bodyIndexForUse = 0;
+                    // first person
+                    for (int bodyIndex = 0; bodyIndex < this.bodies.Length; bodyIndex++)
                     {
-                        ZvalueforDistinct = HeadZAxis;
-                        bodyIndexForUse = bodyIndex;
-                    }
 
-                }
-                Body body = this.bodies[bodyIndexForUse];
+                        Body temp_body = this.bodies[bodyIndex];
+                        Joint userJoint_Head = temp_body.Joints[JointType.Head];
+                        int HeadZAxis = (int)(userJoint_Head.Position.Z * 100);
+                        if (ZvalueforDistinct > HeadZAxis && HeadZAxis != 0)
+                        {
+                            ZvalueforDistinct = HeadZAxis;
+                            bodyIndexForUse = bodyIndex;
+                        }
 
-                string Fi_Photos, fi_path;
-                switch (Mode_State)
-                {
-                    case State.Background:
-                        if (!body.IsTracked)
+                    }*/
+                    //Body body = this.bodies[bodyIndexForUse];
+
+                    string Fi_Photos, fi_path;
+                    
+                    switch (Mode_State)
+                    {
+                        case State.Background:
+
+                            if (!body.IsTracked)
+                                break;
+                            
+
+                            //雙手合十
+                            if (userJoint_HandRight.Position.X - userJoint_HandLeft.Position.X < 0.01f)
+                            {
+                                saveFinalImg(imgno);
+                            }
+                            //右手舉起
+                            else if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
+                            {
+                                //右手X位置-右手手肘的位置
+                                float distance = userJoint_HandRight.Position.X - userJoint_ElbowRight.Position.X;
+                                Console.Write("舉右手");
+                                System.Console.WriteLine(distance);
+                                int flag = 0;
+
+                                //FSM dectect gesture
+                                // INPUT : R
+                                if (distance > 0.05f)
+                                {
+                                    if (CurrentState.Equals("D"))
+                                    {
+                                        CurrentState = "1";
+                                    }
+                                    else if (CurrentState.Equals("0"))
+                                    {
+                                        CurrentState = "0";
+                                    }
+                                    else if (CurrentState.Equals("1"))
+                                    {
+                                        CurrentState = "0";
+                                    }
+
+
+                                }// INPUT : L
+                                else if (distance < -0.05f)
+                                {
+                                    if (CurrentState.Equals("D"))
+                                    {
+                                        CurrentState = "0";
+                                    }
+                                    else if (CurrentState.Equals("0"))
+                                    {
+                                        CurrentState = "1";
+                                    }
+                                    else if (CurrentState.Equals("1"))
+                                    {
+                                        CurrentState = "1";
+                                    }
+
+
+                                }
+                                // switch image
+                                if (CurrentState.Equals("0"))
+                                {
+                                    imgno = (imgno + Constants.MAX_BG_NUM - 1) % Constants.MAX_BG_NUM;
+
+                                    Thread.Sleep(200);
+                                    BackGround_Screen.Source = bg_pool[imgno];
+
+                                    CurrentState = "D";
+
+                                }
+                                else if (CurrentState.Equals("1"))
+                                {
+                                    imgno = (imgno + 1) % Constants.MAX_BG_NUM;
+
+                                    Thread.Sleep(200);
+                                    BackGround_Screen.Source = bg_pool[imgno];
+
+                                    CurrentState = "D";
+                                }
+
+                            }//左手舉起
+                            else if (userJoint_HandLeft.Position.Y > userJoint_ElbowLeft.Position.Y)
+                            {
+                            }
+
                             break;
-                        Joint userJoint_HandLeft = body.Joints[JointType.HandLeft];
-                        Joint userJoint_ElbowLeft = body.Joints[JointType.ElbowLeft];
-                        Joint userJoint_HandRight = body.Joints[JointType.HandRight];
-                        Joint userJoint_ElbowRight = body.Joints[JointType.ElbowRight];
-                        Joint userJoint_ShoulderCenter = body.Joints[JointType.SpineShoulder];
-                        Joint userJoint_Spine = body.Joints[JointType.SpineMid];
-                        Joint userJoint_Head = body.Joints[JointType.Head];
 
-                        //雙手合十
-                        if (userJoint_HandRight.Position.X - userJoint_HandLeft.Position.X < 0.01f)
-                        {
-                            saveFinalImg(imgno);
-                        }
-                        //右手舉起
-                        else if (userJoint_HandRight.Position.Y > userJoint_ElbowRight.Position.Y)
-                        {
-                            //右手X位置-右手手肘的位置
-                            float distance = userJoint_HandRight.Position.X - userJoint_ElbowRight.Position.X;
-                            Console.Write("舉右手");
-                            System.Console.WriteLine(distance);
-                            int flag = 0;
+                        case State.Result:
 
-                            //FSM dectect gesture
-                            // INPUT : R
-                            if (distance > 0.05f)
-                            {
-                                if (CurrentState.Equals("D"))
-                                {
-                                    CurrentState = "1";
-                                }
-                                else if (CurrentState.Equals("0"))
-                                {
-                                    CurrentState = "0";
-                                }
-                                else if (CurrentState.Equals("1"))
-                                {
-                                    CurrentState = "0";
-                                }
+                             
 
 
-                            }// INPUT : L
-                            else if (distance < -0.05f)
-                            {
-                                if (CurrentState.Equals("D"))
-                                {
-                                    CurrentState = "0";
-                                }
-                                else if (CurrentState.Equals("0"))
-                                {
-                                    CurrentState = "1";
-                                }
-                                else if (CurrentState.Equals("1"))
-                                {
-                                    CurrentState = "1";
-                                }
+                            break;
+                        case State.QRcode:
 
+                            break;
 
-                            }
-                            // switch image
-                            if (CurrentState.Equals("0"))
-                            {
-                                imgno = (imgno+ Constants.MAX_BG_NUM - 1) % Constants.MAX_BG_NUM;
-                                
-                                Thread.Sleep(200);
-                                BackGround_Screen.Source = bg_pool[imgno];
-
-                                CurrentState = "D";
-
-                            }
-                            else if (CurrentState.Equals("1"))
-                            {
-                                imgno = (imgno + 1) % Constants.MAX_BG_NUM;
-                                
-                                Thread.Sleep(200);
-                                BackGround_Screen.Source = bg_pool[imgno];
-
-                                CurrentState = "D";
-                            }
-
-                        }//左手舉起
-                        else if (userJoint_HandLeft.Position.Y > userJoint_ElbowLeft.Position.Y)
-                        {
-                        }
-
-                        break;
-
-                    case State.Result:
-   
-                     
-                        break;
-                    case State.QRcode:
-                       
-                        break;
-
+                    }
                 }
-
+                
             }
             #endregion
         }
