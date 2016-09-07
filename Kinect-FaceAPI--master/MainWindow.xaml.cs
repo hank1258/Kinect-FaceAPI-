@@ -746,12 +746,12 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     return;
                 }
 
-                int[] faceimg_x = new int[Constants.MAX_FACE_NUM];
-                int[] faceimg_y = new int[Constants.MAX_FACE_NUM];
-                int[] faceimg_width = new int[Constants.MAX_FACE_NUM];
-                int[] faceimg_height = new int[Constants.MAX_FACE_NUM];
-                int[] faceimg_age = new int[Constants.MAX_FACE_NUM];
-                int[] faceimg_gender = new int[Constants.MAX_FACE_NUM]; //1 for man 2 for woman
+                int[] faceimg_x = new int[Constants.MAX_FACE_NUM+10];
+                int[] faceimg_y = new int[Constants.MAX_FACE_NUM+10];
+                int[] faceimg_width = new int[Constants.MAX_FACE_NUM+10];
+                int[] faceimg_height = new int[Constants.MAX_FACE_NUM+10];
+                int[] faceimg_age = new int[Constants.MAX_FACE_NUM+10];
+                int[] faceimg_gender = new int[Constants.MAX_FACE_NUM+10]; //1 for man 2 for woman
 
                 sw.Start();
                 facecount = 0;
@@ -785,10 +785,11 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     System.Console.WriteLine("{0} {1}", max_left, max_top);
                     System.Console.WriteLine("{0} {1}", width, height);
                     System.Console.WriteLine("{0} {1}", width_factor, height_factor);
-                    width = width + Convert.ToInt32(width_factor * 1);
-                    height = height + Convert.ToInt32(height_factor * 1);
+                    width = width + Convert.ToInt32(width_factor * 2);
+                    height = height + Convert.ToInt32(height_factor * 2);
                     //  Bitmap bmp = new Bitmap(width, height);
-                    float x = Convert.ToSingle(max_left - (width_factor)), y = Convert.ToSingle(max_top - (height_factor));
+                    float x = Convert.ToSingle(max_left - (width_factor));
+                    float y = Convert.ToSingle(max_top - (height_factor));
 
                     string randomName = System.IO.Path.GetRandomFileName();
 
@@ -799,16 +800,16 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     if (face.FaceAttributes.HeadPose.Roll >= 10 || face.FaceAttributes.HeadPose.Roll <= -10)
                     {
                         System.Drawing.Rectangle rect = new System.Drawing.Rectangle(Convert.ToInt32(face.FaceRectangle.Left), Convert.ToInt32(face.FaceRectangle.Top), face.FaceRectangle.Width, face.FaceRectangle.Height);
+
                         CroppedImage = new Bitmap(CropRotatedRect(oribmp, rect, Convert.ToSingle(face.FaceAttributes.HeadPose.Roll * -1), true));
                     }
                     else
                     {
-                        CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(Convert.ToInt32(face.FaceRectangle.Left), Convert.ToInt32(face.FaceRectangle.Top), face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat));
+                        CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(face.FaceRectangle.Left, face.FaceRectangle.Top, face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat));
+
                     }
-                    faceimg_x[facecount] = Convert.ToInt32(x);
-                    faceimg_y[facecount] = Convert.ToInt32(y);
-                    faceimg_width[facecount] = width;
-                    faceimg_height[facecount] = height;
+                    
+                    CroppedImage = new Bitmap(oribmp.Clone(new System.Drawing.Rectangle(face.FaceRectangle.Left, face.FaceRectangle.Top, face.FaceRectangle.Width, face.FaceRectangle.Height), oribmp.PixelFormat));
 
 
                     StringBuilder st = new StringBuilder();
@@ -880,9 +881,9 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                 }
    
-                if (faces.Length >= Constants.MAX_FACE_NUM)
+                if (faces.Length > Constants.MAX_FACE_NUM)
                 {
-                    facecount = Constants.MAX_FACE_NUM-1;
+                    facecount = Constants.MAX_FACE_NUM;
                 }
 
                 sw.Stop();//碼錶停止
@@ -893,31 +894,34 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 //body+face
                 for (int j = 1; j <= facecount; j++)
                 {
-                    StringBuilder body_img_path = new StringBuilder();
-                    //body_img.Append("Images/");
-
+                    Figure_Types currentFigure = 0;
                     if (faceimg_gender[j] == 1)
                     {
-                        body_img_path.Append("man_");
+                        if (faceimg_age[j] <= 35)
+                        {
+                            currentFigure = Figure_Types.Male_Young;
+                        }
+                        else
+                        {
+                            currentFigure = Figure_Types.Male_Old;
+                        }
                     }
-                    else if (faceimg_gender[j] == 2)
+                    else
                     {
-                        body_img_path.Append("woman_");
+                        if (faceimg_age[j] <= 35)
+                        {
+                            currentFigure = Figure_Types.Female_Young;
+                        }
+                        else
+                        {
+                            currentFigure = Figure_Types.Female_Old;
+                        }
                     }
 
-                    if (faceimg_age[j] <= 35)
-                    {
-                        body_img_path.Append("young");
-                    }
-                    else if (faceimg_age[j] > 35)
-                    {
-                        body_img_path.Append("mature");
-                    }
-                    body_img_path.Append(".png");
-
+                    string body_img_path = Constants.BODY_IMG_PATH[(int)currentFigure];
                     Image body_face;
-                    Image body_frame = Image.FromFile(body_img_path.ToString());
-                    using (body_frame)
+
+                    using (Image body_frame = Image.FromFile(body_img_path.ToString()))
                     {
                         using (var bitmap = new Bitmap(body_frame.Width, body_frame.Height))
                         {
@@ -941,46 +945,38 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                                 st.Append(".png");
 
                                 body_face = Image.FromFile(st.ToString());
-                                int bx = 0, by = 0;
-                                if (body_img_path.ToString().Equals("man_mature.png"))
+                                int faceX = Constants.FIGURE_FACE_OFFSET[(int)currentFigure].X;
+                                int faceY = Constants.FIGURE_FACE_OFFSET[(int)currentFigure].Y;
+                                int faceWidth = Constants.FIGURE_FACE_SIZE[(int)currentFigure].X;
+                                int faceHeight = Constants.FIGURE_FACE_SIZE[(int)currentFigure].Y;
+
+                                if (faces[j - 1].FaceAttributes.HeadPose.Yaw > 0)//looking right
                                 {
-                                    bx = 760;
-                                    by = 656;
-                                }
-                                else if (body_img_path.ToString().Equals("man_young.png"))
-                                {
-                                    bx = 890;
-                                    by = 545;
-                                }
-                                else if (body_img_path.ToString().Equals("woman_mature.png"))
-                                {
-                                    bx = 873;
-                                    by = 653;
-                                }
-                                else if (body_img_path.ToString().Equals("woman_young.png"))
-                                {
-                                    bx = 781;
-                                    by = 659;
+                                    body_face.RotateFlip(RotateFlipType.Rotate180FlipY);
                                 }
 
-                                canvas.DrawImage(body_face, bx, by, 340, 340);
-
-                                body_img_path.Replace(".png","_hat.png");
-                                Image hatImg = Image.FromFile(body_img_path.ToString());
+                                canvas.DrawImage(body_face, faceX, faceY, faceWidth, faceHeight);
+                                
+                                string hat_img_path = body_img_path.Replace(".png", "_hat.png");
+                                Image hatImg = Image.FromFile(hat_img_path.ToString());
                                 canvas.DrawImage(hatImg,
                                                 new System.Drawing.Rectangle(0,
-                                                              0,
-                                                              body_frame.Width,
-                                                              body_frame.Height),
+                                                                0,
+                                                                body_frame.Width,
+                                                                body_frame.Height),
                                                 new System.Drawing.Rectangle(0,
-                                                              0,
-                                                              body_frame.Width,
-                                                              body_frame.Height),
+                                                                0,
+                                                                body_frame.Width,
+                                                                body_frame.Height),
                                                 GraphicsUnit.Pixel);
-
-
                                 canvas.Save();
                             }
+
+                            if (faces[j - 1].FaceAttributes.HeadPose.Yaw > 0)//looking right
+                            {
+                                bitmap.RotateFlip(RotateFlipType.Rotate180FlipY);
+                            }
+
                             try
                             {
                                 string Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
@@ -1017,11 +1013,10 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             String fi_path = System.IO.Path.Combine(Fi_Photos, "Body" + Facename_Pool[i] + ".png");
                             Image temp_body = Image.FromFile(fi_path);
 
-                            int dx = Constants.POSITION_OFFSET[i - 1].X;// - Constants.FIGURE_OFFSET[0].X;
-                            int dy = Constants.POSITION_OFFSET[i - 1].Y;// - Constants.FIGURE_OFFSET[0].Y;
+                            int dx = Constants.POSITION_OFFSET[i - 1].X;
+                            int dy = Constants.POSITION_OFFSET[i - 1].Y;
                             //canvas.DrawImage(temp_body, dx, dy, Constants.FIGURE_WIDTH * Constants.resizeRatio, Constants.FIGURE_HEIGHT * Constants.resizeRatio);
                             canvas.DrawImage(temp_body, dx, dy, Constants.FIGURE_WIDTH * Constants.resizeRatio, Constants.FIGURE_HEIGHT * Constants.resizeRatio);
-
                         }
 
                         canvas.Save();
@@ -1180,8 +1175,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 return result.Text;
         }
 
-       
-
         public void saveFinalImg(int imgno)
         {
             Image temp_body;
@@ -1206,17 +1199,14 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
                         for (int i = 1; i <= facecount; i++)
                         {
-
                             String Fi_Photos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
                             String fi_path = System.IO.Path.Combine(Fi_Photos, "Body" + Facename_Pool[i] + ".png");
                             temp_body = Image.FromFile(fi_path);
 
-                            int dx = Constants.POSITION_OFFSET[i - 1].X;// - Constants.FIGURE_OFFSET[0].X;
-                            int dy = Constants.POSITION_OFFSET[i - 1].Y;// - Constants.FIGURE_OFFSET[0].Y;
+                            int dx = Constants.POSITION_OFFSET[i - 1].X;
+                            int dy = Constants.POSITION_OFFSET[i - 1].Y;
                             canvas.DrawImage(temp_body, dx, dy, Constants.FIGURE_WIDTH * Constants.resizeRatio, Constants.FIGURE_HEIGHT * Constants.resizeRatio);
-
                         }
-
                         canvas.Save();
 
                     }
@@ -1241,7 +1231,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                             Thread myNewThread = new Thread(() => Utils.saveBitmap(resultPath, st.ToString()));
                             myNewThread.Start();
                         }
-                       
 
                         Mode_State = State.Result;
                         BackGround_Screen.Source = Utils.Bitmap2BitmapImage(bitmap);
@@ -1257,8 +1246,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     }
                 }
             }
-
-        }
-       
+        }    
     }
 }
